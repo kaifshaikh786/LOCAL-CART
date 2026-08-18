@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -14,13 +15,35 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, '..')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
+
+app.get('/customers/products.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'customers', 'product.html'));
+});
+
+app.get('/customer/products.html', (req, res) => {
+  res.redirect('/customers/products.html');
+});
+
+app.get('/products.html', (req, res) => {
+  res.redirect('/customers/products.html');
+});
 
 // Twilio client setup
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
-const client = twilio(accountSid, authToken);
+const isTwilioConfigured = Boolean(accountSid && authToken && twilioPhoneNumber);
+const client = isTwilioConfigured ? twilio(accountSid, authToken) : null;
+
+if (!isTwilioConfigured) {
+  console.log('⚠️ Twilio not configured. WhatsApp notifications are disabled until environment variables are added.');
+}
 
 // ==================== ROUTES ====================
 
@@ -39,6 +62,14 @@ app.post('/api/send-order', async (req, res) => {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
+        if (!isTwilioConfigured || !client) {
+            return res.json({
+                success: true,
+                message: 'Order recorded. Twilio is not configured, so WhatsApp notifications are disabled.',
+                twilioConfigured: false
+            });
+        }
+
         // Format customer phone number (assuming Indian format)
         const vendorPhone = formatPhoneNumber(customer.phone);
 
@@ -54,22 +85,21 @@ app.post('/api/send-order', async (req, res) => {
 
         console.log(`✓ WhatsApp message sent to vendor. SID: ${message.sid}`);
 
-        // Also send confirmation email to customer (optional)
-        // sendConfirmationEmail(customer.email, orderNumber);
-
         res.json({
             success: true,
             message: 'Order notification sent to vendor',
-            messageSid: message.sid
+            messageSid: message.sid,
+            twilioConfigured: true
         });
 
     } catch (error) {
         console.error('Error sending WhatsApp message:', error);
-        
+
         // Don't block order placement even if WhatsApp fails
         res.json({
             success: true,
             message: 'Order recorded (WhatsApp notification pending)',
+            twilioConfigured: isTwilioConfigured,
             error: error.message
         });
     }
@@ -177,7 +207,11 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📱 Twilio WhatsApp API configured`);
+    console.log(
+      isTwilioConfigured
+        ? '📱 Twilio WhatsApp API configured'
+        : '⚠️ Twilio WhatsApp API not configured'
+    );
 });
 
 module.exports = app;

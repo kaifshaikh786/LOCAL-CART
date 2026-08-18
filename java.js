@@ -41,7 +41,9 @@ function getCartCount() {
 
 // Open cart page
 function openCart() {
-    window.location.href = "customers/cart.html";
+    const currentPath = window.location.pathname || "";
+    const cartPath = currentPath.includes('/customers/') ? 'cart.html' : 'customers/cart.html';
+    window.location.href = cartPath;
 }
 
 // ================= PRODUCT FUNCTIONS =================

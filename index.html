@@ -1,364 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>LocalCart - Shop Local, Save More</title>
-
-    <link rel="icon" type="image/png" href="./logo.png">
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LocalCart | Smart Deals</title>
+    <link rel="icon" type="image/png" href="./logo.png" />
+    <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-
-    <!-- ================= HEADER ================= -->
-    <header>
-
-        <div class="logo">
-            <img src="./logo.png" alt="LocalCart Logo" class="logo-img">
-            <div class="logo-text">
-                <h1>LocalCart</h1>
-                <p>Shop Local. Save More.</p>
-            </div>
-        </div>
-
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="customer/products.html">Products</a>
-            <a href="#deals">Best Deals</a>
-            <a href="#categories">Categories</a>
-            <a href="#about">About</a>
-        </nav>
-
-        <div class="header-actions">
-            <button onclick="openCart()">🛒 Cart</button>
-        </div>
-
-    </header>
-
-
-    <!-- ================= HERO SECTION ================= -->
-    <section class="hero">
-
-        <div class="hero-content">
-
-            <h2>Your Local Marketplace</h2>
-
-            <p>
-                Discover products from nearby shops,
-                compare prices and find the best deals.
-            </p>
-
-            <div class="search-box">
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search for products..."
-                >
-
-                <button onclick="searchProducts()">
-                    Search
-                </button>
-            </div>
-
-            <button class="shop-btn" onclick="goToProducts()">
-                Start Shopping
-            </button>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= CATEGORIES ================= -->
-    <section id="categories">
-
-        <h2>Shop by Category</h2>
-
-        <div class="category-container">
-
-            <div class="category-card">
-                <span>📱</span>
-                <h3>Electronics</h3>
-            </div>
-
-            <div class="category-card">
-                <span>👕</span>
-                <h3>Fashion</h3>
-            </div>
-
-            <div class="category-card">
-                <span>🥦</span>
-                <h3>Groceries</h3>
-            </div>
-
-            <div class="category-card">
-                <span>💄</span>
-                <h3>Beauty</h3>
-            </div>
-
-            <div class="category-card">
-                <span>🏠</span>
-                <h3>Home</h3>
-            </div>
-
-            <div class="category-card">
-                <span>📚</span>
-                <h3>Books</h3>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= BEST DEALS ================= -->
-    <section id="deals">
-
-        <h2>🔥 Best Deals Near You</h2>
-
-        <div class="product-container">
-
-            <div class="product-card">
-
-                <div class="product-image">
-                    Product Image
+    <div class="page-shell">
+        <header class="topbar">
+            <div class="brand-wrap">
+                <div class="brand-mark">L</div>
+                <div>
+                    <div class="brand-name">LocalCart</div>
+                    <div class="brand-tag">Shop Local • Save More</div>
                 </div>
-
-                <h3>Wireless Headphones</h3>
-
-                <p class="shop-name">
-                    ABC Electronics
-                </p>
-
-                <p class="price">
-                    ₹1,499
-                </p>
-
-                <p class="deal">
-                    Best Price
-                </p>
-
-                <button onclick="addToCart('Wireless Headphones')">
-                    Add to Cart
-                </button>
-
             </div>
 
-
-            <div class="product-card">
-
-                <div class="product-image">
-                    Product Image
-                </div>
-
-                <h3>Casual T-Shirt</h3>
-
-                <p class="shop-name">
-                    Local Fashion Store
-                </p>
-
-                <p class="price">
-                    ₹599
-                </p>
-
-                <p class="deal">
-                    20% OFF
-                </p>
-
-                <button onclick="addToCart('Casual T-Shirt')">
-                    Add to Cart
-                </button>
-
-            </div>
-
-
-            <div class="product-card">
-
-                <div class="product-image">
-                    Product Image
-                </div>
-
-                <h3>Smart Watch</h3>
-
-                <p class="shop-name">
-                    Tech World
-                </p>
-
-                <p class="price">
-                    ₹2,299
-                </p>
-
-                <p class="deal">
-                    Best Deal
-                </p>
-
-                <button onclick="addToCart('Smart Watch')">
-                    Add to Cart
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= HOW IT WORKS ================= -->
-    <section id="how-it-works">
-
-        <h2>How LocalCart Works</h2>
-
-        <div class="steps">
-
-            <div class="step">
-                <span>1</span>
-                <h3>Search</h3>
-                <p>Find the product you need.</p>
-            </div>
-
-            <div class="step">
-                <span>2</span>
-                <h3>Compare</h3>
-                <p>Compare prices from local vendors.</p>
-            </div>
-
-            <div class="step">
-                <span>3</span>
-                <h3>Choose Best Deal</h3>
-                <p>Get our best-deal recommendation.</p>
-            </div>
-
-            <div class="step">
-                <span>4</span>
-                <h3>Order</h3>
-                <p>Place your order with the vendor.</p>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= FEATURES ================= -->
-    <section id="features">
-
-        <h2>Why Use LocalCart?</h2>
-
-        <div class="feature-container">
-
-            <div class="feature">
-                <h3>📍 Local Shopping</h3>
-                <p>
-                    Discover products available from
-                    nearby shops.
-                </p>
-            </div>
-
-            <div class="feature">
-                <h3>💰 Price Comparison</h3>
-                <p>
-                    Compare prices between different
-                    local vendors.
-                </p>
-            </div>
-
-            <div class="feature">
-                <h3>🤖 Smart Recommendations</h3>
-                <p>
-                    Find the best deal based on price,
-                    distance and offers.
-                </p>
-            </div>
-
-            <div class="feature">
-                <h3>🧾 Digital Invoice</h3>
-                <p>
-                    Receive and manage digital invoices
-                    for your purchases.
-                </p>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= VENDOR SECTION ================= -->
-    <section id="vendor">
-
-        <h2>Are You a Local Business?</h2>
-
-        <p>
-            Join LocalCart and bring your products
-            online to reach more customers.
-        </p>
-
-        <button onclick="vendorRegistration()">
-            Become a Vendor
-        </button>
-
-    </section>
-
-
-    <!-- ================= ABOUT ================= -->
-    <section id="about">
-
-        <h2>About LocalCart</h2>
-
-        <p>
-            LocalCart is a local e-commerce platform designed
-            to connect customers with nearby vendors.
-            Customers can discover products, compare prices,
-            find the best deals and place orders digitally.
-        </p>
-
-    </section>
-
-
-    <!-- ================= FOOTER ================= -->
-    <footer>
-
-        <div class="footer-content">
-
-            <div>
-                <h3>LocalCart</h3>
-                <p>Shop Local. Save More.</p>
-            </div>
-
-            <div>
-                <h3>Quick Links</h3>
+            <nav class="main-nav">
                 <a href="index.html">Home</a>
-                <a href="customer/products.html">Products</a>
+                <a href="customers/products.html">Products</a>
                 <a href="#deals">Best Deals</a>
+                <a href="#categories">Categories</a>
                 <a href="#about">About</a>
+            </nav>
+
+            <div class="header-tools">
+                <button class="ghost-btn" onclick="goToProducts()">Search</button>
+                <button class="primary-btn" onclick="openCart()">Cart</button>
             </div>
+        </header>
 
-            <div>
-                <h3>For Vendors</h3>
-                <a href="vendor/dashboard.html">Vendor Login</a>
-                <a href="#vendor">Become a Vendor</a>
-            </div>
+        <main class="marketplace-layout">
+            <section class="left-panel">
+                <div class="hero-banner" id="deals">
+                    <div class="hero-copy">
+                        <p>Best Deal Online on smart watches</p>
+                        <h1>SMART WEARABLE.</h1>
+                        <h2>UP TO 80% OFF</h2>
+                        <div class="hero-dots">
+                            <span class="dot active"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                    </div>
 
-            <div>
-                <h3>Contact</h3>
-                <p>Email: support@localcart.com</p>
-            </div>
+                    <div class="watch-hero" aria-hidden="true">
+                        <div class="watch-case">
+                            <div class="watch-face">
+                                <div class="watch-inner">
+                                    <span>08:26:00</span>
+                                    <small>Mon 15 Jan</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        </div>
+                <div class="section-head">
+                    <h3>Grab the best deal on Smartphones</h3>
+                    <a href="customers/products.html">View All</a>
+                </div>
 
-        <hr>
+                <div class="phone-grid">
+                    <article class="deal-card">
+                        <span class="badge">55% OFF</span>
+                        <div class="product-visual">📱</div>
+                        <h4>Galaxy S22 Ultra</h4>
+                        <div class="meta-row"><span>₹79999</span><strong>₹69999</strong></div>
+                        <p>Save ₹10000</p>
+                    </article>
 
-        <p>
-            © 2026 LocalCart. All Rights Reserved.
-        </p>
+                    <article class="deal-card">
+                        <span class="badge">50% OFF</span>
+                        <div class="product-visual">📱</div>
+                        <h4>Galaxy M13</h4>
+                        <div class="meta-row"><span>₹14999</span><strong>₹12499</strong></div>
+                        <p>Save ₹2500</p>
+                    </article>
 
-    </footer>
+                    <article class="deal-card">
+                        <span class="badge">55% OFF</span>
+                        <div class="product-visual">📱</div>
+                        <h4>Galaxy M33</h4>
+                        <div class="meta-row"><span>₹16999</span><strong>₹12999</strong></div>
+                        <p>Save ₹4000</p>
+                    </article>
 
+                    <article class="deal-card">
+                        <span class="badge">50% OFF</span>
+                        <div class="product-visual">📱</div>
+                        <h4>Galaxy S22</h4>
+                        <div class="meta-row"><span>₹18999</span><strong>₹14999</strong></div>
+                        <p>Save ₹4000</p>
+                    </article>
+                </div>
 
-    <!-- ================= JAVASCRIPT ================= -->
-    <script src="script.js"></script>
+                <div class="section-head" id="categories">
+                    <h3>Shop From Top Categories</h3>
+                    <a href="customers/products.html">View All</a>
+                </div>
 
+                <div class="category-grid">
+                    <div class="category-tile"><span>📱</span><p>Mobile</p></div>
+                    <div class="category-tile"><span>💄</span><p>Cosmetics</p></div>
+                    <div class="category-tile"><span>🔌</span><p>Electronics</p></div>
+                    <div class="category-tile"><span>🪑</span><p>Furniture</p></div>
+                    <div class="category-tile"><span>⌚</span><p>Watches</p></div>
+                    <div class="category-tile"><span>🏺</span><p>Decor</p></div>
+                    <div class="category-tile"><span>🎒</span><p>Accessories</p></div>
+                </div>
+
+                <div class="section-head">
+                    <h3>Top Electronic Brands</h3>
+                    <a href="customers/products.html">View All</a>
+                </div>
+
+                <div class="brand-row">
+                    <article class="brand-card">
+                        <div class="brand-thumb one">realme</div>
+                        <p>Up to 80% off</p>
+                    </article>
+                    <article class="brand-card">
+                        <div class="brand-thumb two">Xiaomi</div>
+                        <p>Up to 80% off</p>
+                    </article>
+                    <article class="brand-card">
+                        <div class="brand-thumb three">Samsung</div>
+                        <p>Up to 80% off</p>
+                    </article>
+                    <article class="brand-card">
+                        <div class="brand-thumb four">Apple</div>
+                        <p>Up to 80% off</p>
+                    </article>
+                </div>
+            </section>
+
+            <aside class="right-panel">
+                <div class="mini-category-bar">
+                    <span>Mobile</span>
+                    <span>Laptops</span>
+                    <span>Electronics</span>
+                    <span>Furnitures</span>
+                    <span>Watches</span>
+                    <span>Decor</span>
+                    <span>Accessories</span>
+                </div>
+
+                <div class="right-grid-header">
+                    <h3>Top Electronics Brands</h3>
+                    <a href="customers/products.html">View All</a>
+                </div>
+
+                <div class="right-brand-grid">
+                    <div class="mini-brand-card brand-one"><span>realme</span><small>Up to 80% off</small></div>
+                    <div class="mini-brand-card brand-two"><span>POCO</span><small>Up to 80% off</small></div>
+                    <div class="mini-brand-card brand-three"><span>Samsung</span><small>Up to 80% off</small></div>
+                    <div class="mini-brand-card brand-four"><span>Apple</span><small>Up to 80% off</small></div>
+                </div>
+
+                <div class="right-grid-header">
+                    <h3>Daily Essentials</h3>
+                    <a href="customers/products.html">View All</a>
+                </div>
+
+                <div class="essentials-grid">
+                    <div class="essentials-card"><div class="mini-art fruit">🥭</div><p>Up to 50% off</p></div>
+                    <div class="essentials-card"><div class="mini-art veg">🥬</div><p>Up to 50% off</p></div>
+                    <div class="essentials-card"><div class="mini-art snack">🍒</div><p>Up to 50% off</p></div>
+                    <div class="essentials-card"><div class="mini-art drink">🥤</div><p>Up to 50% off</p></div>
+                </div>
+
+                <div class="blue-footer" id="about">
+                    <div class="footer-top-row">
+                        <div>
+                            <h3>MegaMart</h3>
+                            <p>Contact Us</p>
+                        </div>
+                        <div class="footer-links">
+                            <h4>Most Popular Categories</h4>
+                            <ul>
+                                <li>Electronics</li>
+                                <li>Fashion</li>
+                                <li>Home Decor</li>
+                                <li>Grocery</li>
+                            </ul>
+                        </div>
+                        <div class="footer-links">
+                            <h4>Customer Services</h4>
+                            <ul>
+                                <li>Privacy Policy</li>
+                                <li>Shipping</li>
+                                <li>Returns</li>
+                                <li>Help Center</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="store-badges">
+                        <span>App Store</span>
+                        <span>Google Play</span>
+                    </div>
+
+                    <p class="copyright">© 2026 All rights reserved</p>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="java.js"></script>
 </body>
 </html>
