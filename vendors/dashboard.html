@@ -18,9 +18,10 @@
                 <a class="vendor-nav-active" href="dashboard.html">Overview</a>
                 <a href="#products">Products</a>
                 <a href="#orders">Orders</a>
+                <a href="settings.html">Settings</a>
             </nav>
             <div class="header-tools">
-                <span class="vendor-status"><span class="status-dot"></span> Store online</span>
+                <span class="vendor-status" id="storeStatus"><span class="status-dot"></span> Store online</span>
                 <a class="ghost-btn" href="../index.html">Marketplace</a>
             </div>
         </header>
@@ -136,8 +137,13 @@
         const form = document.getElementById("productForm");
         const orderDetailsDialog = document.getElementById("orderDetailsDialog");
         const orderDetailsContent = document.getElementById("orderDetailsContent");
+        const storeStatus = document.getElementById("storeStatus");
 
         function saveProducts() { localStorage.setItem(inventoryKey, JSON.stringify(products)); }
+        function updateStoreStatus() {
+            const isActive = localStorage.getItem("localcart-vendor-store-active") !== "false";
+            storeStatus.innerHTML = `<span class="status-dot${isActive ? "" : " status-dot-offline"}"></span> Store ${isActive ? "online" : "offline"}`;
+        }
         function money(value) { return `₹${Number(value).toLocaleString("en-IN")}`; }
         function statusClass(stock) { return stock === 0 ? "out" : stock < 10 ? "low" : "in"; }
         function statusText(stock) { return stock === 0 ? "Out of stock" : stock < 10 ? "Low stock" : "In stock"; }
@@ -157,6 +163,8 @@
             const customer = getCustomerDetails(order);
             return customer.deliveryType === "pickup" ? "Pickup from Store" : "Home Delivery";
         }
+
+        updateStoreStatus();
 
         function renderInventory() {
             const rows = document.getElementById("inventoryRows");

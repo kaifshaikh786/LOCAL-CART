@@ -609,6 +609,8 @@ button {
   font-weight: 700;
 }
 
+.status-dot-offline { background: #cb5a5a; }
+
 .vendor-nav {
   display: flex;
   align-items: center;
@@ -978,6 +980,18 @@ button {
 .empty-inventory { padding: 30px; color: var(--muted); text-align: center; }
 
 .product-form-panel[hidden] { display: none; }
+
+.settings-layout { max-width: 980px; }
+.settings-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr); gap: 18px; }
+.settings-panel { min-width: 0; }
+.settings-form { display: grid; gap: 18px; }
+.settings-form .form-actions { justify-content: end; }
+.store-control-panel { align-self: start; }
+.store-status-card { display: flex; align-items: center; gap: 12px; margin: 20px 0; padding: 16px; border: 1px solid #d7e2f0; border-radius: 10px; background: #f8fbff; color: var(--navy); font-weight: 800; }
+.store-status-card .status-dot { flex: 0 0 auto; }
+.store-toggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; border-top: 1px solid #e7eef6; color: var(--navy); font-size: 0.86rem; font-weight: 800; }
+.store-toggle input { width: 18px; height: 18px; accent-color: var(--blue-strong); }
+.settings-message { min-height: 18px; margin: 0; color: #167453; font-size: 0.76rem; }
 .icon-button { border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; cursor: pointer; }
 .product-form { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 16px; margin-top: 20px; }
 .product-form label { display: grid; gap: 7px; color: var(--navy); font-size: 0.78rem; font-weight: 800; }
