@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LocalCart | Vendor Dashboard</title>
+    <link rel="icon" type="image/png" href="../logo.png" />
+    <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+    <div class="page-shell">
+        <header class="topbar vendor-topbar">
+            <a class="brand-wrap" href="../index.html" aria-label="LocalCart home">
+                <div class="brand-mark"><img src="../logo.png" alt="LocalCart" width="55" height="50" /></div>
+                <div><div class="brand-name">LocalCart</div><div class="brand-tag">Vendor Dashboard</div></div>
+            </a>
+            <nav class="vendor-nav" aria-label="Vendor navigation">
+                <a class="vendor-nav-active" href="dashboard.html">Overview</a>
+                <a href="#products">Products</a>
+                <a href="#orders">Orders</a>
+            </nav>
+            <div class="header-tools">
+                <span class="vendor-status"><span class="status-dot"></span> Store online</span>
+                <a class="ghost-btn" href="../index.html">Marketplace</a>
+            </div>
+        </header>
+
+        <main class="vendor-dashboard vendor-overview">
+            <section class="vendor-heading">
+                <div>
+                    <p class="eyebrow">Store overview</p>
+                    <h1>Good morning, ABC Electronics</h1>
+                    <p class="vendor-subtitle">A clear view of your shop performance, orders, and inventory.</p>
+                </div>
+                <a class="primary-btn" href="#products">Manage products</a>
+            </section>
+
+            <section class="dashboard-stat-grid" aria-label="Shop summary">
+                <article class="dashboard-stat-card revenue-stat"><span>Revenue generated</span><strong id="revenueTotal">₹0</strong><small id="revenueChange">This month</small></article>
+                <article class="dashboard-stat-card"><span>Total sales</span><strong id="salesTotal">0</strong><small>Completed orders</small></article>
+                <article class="dashboard-stat-card"><span>Pending orders</span><strong id="pendingTotal">0</strong><small>Need your attention</small></article>
+                <article class="dashboard-stat-card"><span>Products listed</span><strong id="productsTotal">0</strong><small id="inventoryNote">Across your catalog</small></article>
+            </section>
+
+            <section class="dashboard-grid dashboard-grid-main">
+                <article class="dashboard-panel sales-panel">
+                    <div class="dashboard-panel-heading"><div><p class="eyebrow">Performance</p><h2>Sales overview</h2></div><span class="dashboard-period">Last 7 days</span></div>
+                    <div class="sales-chart" id="salesChart" aria-label="Sales over the last 7 days"></div>
+                    <div class="chart-labels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+                </article>
+
+                <article class="dashboard-panel order-summary-panel">
+                    <div class="dashboard-panel-heading"><div><p class="eyebrow">Order flow</p><h2>Order status</h2></div></div>
+                    <div class="order-status-row"><span class="status-bar-label"><span class="status-dot pending-dot"></span>Pending</span><strong id="pendingStatusCount">0</strong></div>
+                    <div class="order-status-row"><span class="status-bar-label"><span class="status-dot completed-dot"></span>Completed</span><strong id="completedStatusCount">0</strong></div>
+                    <div class="order-status-row"><span class="status-bar-label"><span class="status-dot cancelled-dot"></span>Cancelled</span><strong id="cancelledStatusCount">0</strong></div>
+                    <div class="order-progress"><span id="completedProgress"></span></div>
+                </article>
+            </section>
+
+            <section class="dashboard-grid dashboard-grid-main" id="orders">
+                <article class="dashboard-panel">
+                    <div class="dashboard-panel-heading"><div><p class="eyebrow">Needs attention</p><h2>Pending orders</h2></div><span class="dashboard-count" id="pendingOrderLabel">0 orders</span></div>
+                    <div class="dashboard-order-list" id="pendingOrders"></div>
+                </article>
+                <article class="dashboard-panel">
+                    <div class="dashboard-panel-heading"><div><p class="eyebrow">Recently fulfilled</p><h2>Completed orders</h2></div><span class="dashboard-count" id="completedOrderLabel">0 orders</span></div>
+                    <div class="dashboard-order-list" id="completedOrders"></div>
+                </article>
+            </section>
+
+            <dialog class="order-details-dialog" id="orderDetailsDialog" aria-labelledby="orderDetailsTitle">
+                <div class="order-details-dialog-heading">
+                    <div>
+                        <p class="eyebrow">Order details</p>
+                        <h2 id="orderDetailsTitle">Order</h2>
+                    </div>
+                    <button class="icon-button" type="button" id="closeOrderDetails" aria-label="Close order details">x</button>
+                </div>
+                <div id="orderDetailsContent"></div>
+            </dialog>
+
+            <section class="dashboard-panel inventory-dashboard-panel" id="products">
+                <div class="dashboard-panel-heading"><div><p class="eyebrow">Catalog control</p><h2>Product inventory</h2><p class="panel-description">Update pricing and stock without leaving your overview.</p></div><button class="primary-btn" type="button" id="addProductButton">Add product</button></div>
+                <div class="inventory-table-wrap">
+                    <table class="inventory-table dashboard-inventory-table">
+                        <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
+                        <tbody id="inventoryRows"></tbody>
+                    </table>
+                    <div class="empty-inventory" id="emptyInventory" hidden>No products have been added yet.</div>
+                </div>
+            </section>
+
+            <section class="product-form-panel dashboard-product-form" id="productFormPanel" hidden>
+                <div class="form-panel-heading"><div><p class="eyebrow">Catalog update</p><h2 id="formTitle">Add a product</h2></div><button class="icon-button" type="button" id="closeProductForm" aria-label="Close form">x</button></div>
+                <form id="productForm" class="product-form">
+                    <input id="productId" type="hidden" />
+                    <label>Product name<input id="productName" required maxlength="80" placeholder="e.g. Wireless Headphones" /></label>
+                    <label>Category<select id="productCategory"><option>Electronics</option><option>Fashion</option><option>Home Decor</option><option>Grocery</option></select></label>
+                    <label>Price (INR)<input id="productPrice" required min="0" step="1" type="number" placeholder="1499" /></label>
+                    <label>Stock quantity<input id="productStock" required min="0" step="1" type="number" placeholder="25" /></label>
+                    <div class="form-actions"><button class="ghost-btn" type="button" id="cancelProductForm">Cancel</button><button class="primary-btn" type="submit">Save product</button></div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const inventoryKey = "localcart-vendor-inventory";
+        const ordersKey = "localcart-vendor-orders";
+        const starterProducts = [
+            { id: "headphones", name: "Wireless Headphones", category: "Electronics", price: 1499, stock: 24 },
+            { id: "tshirt", name: "Casual T-Shirt", category: "Fashion", price: 599, stock: 8 },
+            { id: "lamp", name: "Minimal Desk Lamp", category: "Home Decor", price: 1299, stock: 0 }
+        ];
+        const starterOrders = [
+            { id: "LC-1048", customer: "Maya Patel", customerDetails: { name: "Maya Patel", phone: "+91 9876543210", email: "maya@example.com", address: "12 Lake Road, Bengaluru", deliveryType: "delivery", specialNotes: "Please call on arrival." }, items: [{ name: "Wireless Headphones", price: 1499, quantity: 1 }, { name: "Casual T-Shirt", price: 599, quantity: 1 }], total: 2098, status: "pending", date: "Today, 10:42 AM" },
+            { id: "LC-1047", customer: "Daniel Brooks", customerDetails: { name: "Daniel Brooks", phone: "+91 9876543211", email: "daniel@example.com", address: "ABC Electronics, Main Street", deliveryType: "pickup" }, items: [{ name: "Wireless Headphones", price: 1499, quantity: 1 }], total: 1499, status: "pending", date: "Today, 9:18 AM" },
+            { id: "LC-1046", customer: "Priya Shah", customerDetails: { name: "Priya Shah", phone: "+91 9876543212", email: "priya@example.com", address: "8 Park Avenue, Mumbai", deliveryType: "delivery" }, items: [{ name: "Wireless Headphones", price: 1499, quantity: 1 }, { name: "Casual T-Shirt", price: 599, quantity: 1 }, { name: "Minimal Desk Lamp", price: 1299, quantity: 1 }], total: 3397, status: "completed", date: "Yesterday, 4:32 PM" },
+            { id: "LC-1045", customer: "Owen Clark", customerDetails: { name: "Owen Clark", phone: "+91 9876543213", email: "owen@example.com", address: "ABC Electronics, Main Street", deliveryType: "pickup" }, items: [{ name: "Minimal Desk Lamp", price: 1299, quantity: 1 }], total: 1299, status: "completed", date: "Yesterday, 1:06 PM" },
+            { id: "LC-1044", customer: "Nora Kim", customerDetails: { name: "Nora Kim", phone: "+91 9876543214", email: "nora@example.com", address: "21 Garden Lane, Delhi", deliveryType: "delivery" }, items: [{ name: "Casual T-Shirt", price: 599, quantity: 1 }], total: 599, status: "completed", date: "Aug 18, 11:22 AM" }
+        ];
+        let products = JSON.parse(localStorage.getItem(inventoryKey)) || starterProducts;
+        const savedOrders = JSON.parse(localStorage.getItem(ordersKey));
+        let orders = (savedOrders || starterOrders).map(order => {
+            const starterOrder = starterOrders.find(item => item.id === order.id);
+            return {
+                ...starterOrder,
+                ...order,
+                customerDetails: order.customerDetails || starterOrder?.customerDetails,
+                items: Array.isArray(order.items) ? order.items : starterOrder?.items || []
+            };
+        });
+        if (savedOrders) localStorage.setItem(ordersKey, JSON.stringify(orders));
+        const formPanel = document.getElementById("productFormPanel");
+        const form = document.getElementById("productForm");
+        const orderDetailsDialog = document.getElementById("orderDetailsDialog");
+        const orderDetailsContent = document.getElementById("orderDetailsContent");
+
+        function saveProducts() { localStorage.setItem(inventoryKey, JSON.stringify(products)); }
+        function money(value) { return `₹${Number(value).toLocaleString("en-IN")}`; }
+        function statusClass(stock) { return stock === 0 ? "out" : stock < 10 ? "low" : "in"; }
+        function statusText(stock) { return stock === 0 ? "Out of stock" : stock < 10 ? "Low stock" : "In stock"; }
+        function getCustomerDetails(order) {
+            return order.customerDetails || (typeof order.customer === "object" ? order.customer : {});
+        }
+        function getCustomerName(order) {
+            const customer = getCustomerDetails(order);
+            return customer.name || order.customer || "Customer";
+        }
+        function getItemCount(order) {
+            return Array.isArray(order.items)
+                ? order.items.reduce((count, item) => count + (item.quantity || 1), 0)
+                : Number(order.items) || 0;
+        }
+        function getFulfillmentLabel(order) {
+            const customer = getCustomerDetails(order);
+            return customer.deliveryType === "pickup" ? "Pickup from Store" : "Home Delivery";
+        }
+
+        function renderInventory() {
+            const rows = document.getElementById("inventoryRows");
+            rows.innerHTML = products.map(product => `<tr><td><strong>${product.name}</strong></td><td>${product.category}</td><td>${money(product.price)}</td><td>${product.stock}</td><td><span class="stock-status ${statusClass(product.stock)}">${statusText(product.stock)}</span></td><td class="row-actions"><button type="button" data-edit="${product.id}">Edit</button><button type="button" data-remove="${product.id}">Remove</button></td></tr>`).join("");
+            document.getElementById("emptyInventory").hidden = products.length !== 0;
+            document.getElementById("productsTotal").textContent = products.length;
+            document.getElementById("inventoryNote").textContent = `${products.filter(product => product.stock < 10).length} need attention`;
+        }
+
+        function renderOrders() {
+            const pending = orders.filter(order => order.status === "pending");
+            const completed = orders.filter(order => order.status === "completed");
+            const cancelled = orders.filter(order => order.status === "cancelled");
+            const orderMarkup = order => `<div class="dashboard-order" data-order-id="${order.id}" role="button" tabindex="0" aria-label="View details for order ${order.id}"><div><strong>${order.id}</strong><span>${getCustomerName(order)} · ${getItemCount(order)} item${getItemCount(order) === 1 ? "" : "s"}</span><span class="order-fulfillment">${getFulfillmentLabel(order)}</span></div><div><strong>${money(order.total)}</strong><span>${order.date}</span></div>${order.status === "pending" ? `<button type="button" data-complete="${order.id}">Complete</button>` : ""}</div>`;
+            document.getElementById("pendingOrders").innerHTML = pending.length ? pending.map(orderMarkup).join("") : `<p class="empty-dashboard-message">No pending orders.</p>`;
+            document.getElementById("completedOrders").innerHTML = completed.length ? completed.map(orderMarkup).join("") : `<p class="empty-dashboard-message">No completed orders.</p>`;
+            document.getElementById("pendingTotal").textContent = pending.length;
+            document.getElementById("salesTotal").textContent = completed.length;
+            document.getElementById("pendingStatusCount").textContent = pending.length;
+            document.getElementById("completedStatusCount").textContent = completed.length;
+            document.getElementById("cancelledStatusCount").textContent = cancelled.length;
+            document.getElementById("pendingOrderLabel").textContent = `${pending.length} order${pending.length === 1 ? "" : "s"}`;
+            document.getElementById("completedOrderLabel").textContent = `${completed.length} order${completed.length === 1 ? "" : "s"}`;
+            document.getElementById("completedProgress").style.width = `${orders.length ? (completed.length / orders.length) * 100 : 0}%`;
+            document.getElementById("revenueTotal").textContent = money(completed.reduce((total, order) => total + order.total, 0));
+        }
+
+        function openOrderDetails(order) {
+            const customer = getCustomerDetails(order);
+            const items = Array.isArray(order.items) ? order.items : [];
+            const itemMarkup = items.length
+                ? items.map(item => `<li><span>${item.name} × ${item.quantity || 1}</span><strong>${money(item.price * (item.quantity || 1))}</strong></li>`).join("")
+                : `<li><span>${getItemCount(order)} item${getItemCount(order) === 1 ? "" : "s"}</span><strong>${money(order.total)}</strong></li>`;
+            document.getElementById("orderDetailsTitle").textContent = order.id;
+            orderDetailsContent.innerHTML = `<div class="order-detail-status"><span>${order.status}</span><strong>${getFulfillmentLabel(order)}</strong></div><div class="order-detail-grid"><div><span>Customer</span><strong>${getCustomerName(order)}</strong></div><div><span>Phone</span><strong>${customer.phone || "Not provided"}</strong></div><div><span>Email</span><strong>${customer.email || "Not provided"}</strong></div><div><span>Order date</span><strong>${order.date || "Not provided"}</strong></div></div><div class="order-detail-block"><span>${getFulfillmentLabel(order) === "Pickup from Store" ? "Pickup location" : "Delivery address"}</span><p>${customer.address || (getFulfillmentLabel(order) === "Pickup from Store" ? "Customer will collect this order at the store." : "Not provided")}</p></div>${customer.specialNotes ? `<div class="order-detail-block"><span>Special instructions</span><p>${customer.specialNotes}</p></div>` : ""}<div class="order-detail-block"><span>Items</span><ul class="order-detail-items">${itemMarkup}</ul></div><div class="order-detail-total"><span>Total</span><strong>${money(order.total)}</strong></div>`;
+            orderDetailsDialog.showModal();
+        }
+
+        function renderChart() {
+            const dailySales = [42, 68, 51, 86, 64, 92, 74];
+            document.getElementById("salesChart").innerHTML = dailySales.map(value => `<span class="chart-column" style="height:${value}%"><b>${value}</b></span>`).join("");
+        }
+
+        function openForm(product) {
+            formPanel.hidden = false;
+            document.getElementById("formTitle").textContent = product ? "Edit product" : "Add a product";
+            document.getElementById("productId").value = product?.id || "";
+            document.getElementById("productName").value = product?.name || "";
+            document.getElementById("productCategory").value = product?.category || "Electronics";
+            document.getElementById("productPrice").value = product?.price || "";
+            document.getElementById("productStock").value = product?.stock ?? "";
+            document.getElementById("productName").focus();
+        }
+        function closeForm() { formPanel.hidden = true; form.reset(); }
+
+        document.getElementById("addProductButton").addEventListener("click", () => openForm());
+        document.getElementById("closeProductForm").addEventListener("click", closeForm);
+        document.getElementById("cancelProductForm").addEventListener("click", closeForm);
+        document.getElementById("inventoryRows").addEventListener("click", event => {
+            const editId = event.target.dataset.edit;
+            const removeId = event.target.dataset.remove;
+            if (editId) openForm(products.find(product => product.id === editId));
+            if (removeId) {
+                products = products.filter(product => product.id !== removeId);
+                saveProducts();
+                renderInventory();
+            }
+        });
+        function handleOrderListClick(event) {
+            const orderId = event.target.dataset.complete;
+            if (orderId) {
+                orders = orders.map(order => order.id === orderId ? { ...order, status: "completed" } : order);
+                localStorage.setItem(ordersKey, JSON.stringify(orders));
+                renderOrders();
+                return;
+            }
+            const orderElement = event.target.closest("[data-order-id]");
+            if (orderElement) openOrderDetails(orders.find(order => order.id === orderElement.dataset.orderId));
+        }
+        function handleOrderListKeydown(event) {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            const orderElement = event.target.closest("[data-order-id]");
+            if (orderElement) openOrderDetails(orders.find(order => order.id === orderElement.dataset.orderId));
+        }
+        document.getElementById("pendingOrders").addEventListener("click", handleOrderListClick);
+        document.getElementById("completedOrders").addEventListener("click", handleOrderListClick);
+        document.getElementById("pendingOrders").addEventListener("keydown", handleOrderListKeydown);
+        document.getElementById("completedOrders").addEventListener("keydown", handleOrderListKeydown);
+        document.getElementById("closeOrderDetails").addEventListener("click", () => orderDetailsDialog.close());
+        orderDetailsDialog.addEventListener("click", event => {
+            if (event.target === orderDetailsDialog) orderDetailsDialog.close();
+        });
+        form.addEventListener("submit", event => {
+            event.preventDefault();
+            const id = document.getElementById("productId").value || `product-${Date.now()}`;
+            const product = { id, name: document.getElementById("productName").value.trim(), category: document.getElementById("productCategory").value, price: Number(document.getElementById("productPrice").value), stock: Number(document.getElementById("productStock").value) };
+            const existingIndex = products.findIndex(item => item.id === id);
+            if (existingIndex >= 0) products[existingIndex] = product;
+            else products.unshift(product);
+            saveProducts();
+            renderInventory();
+            closeForm();
+        });
+
+        renderInventory();
+        renderOrders();
+        renderChart();
+    </script>
+</body>
+</html>

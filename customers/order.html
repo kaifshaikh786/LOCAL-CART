@@ -50,7 +50,7 @@
 
 <section>
 
-    <h2>🛒 Checkout</h2>
+    <h2>Checkout</h2>
 
     <div class="checkout-container">
 
@@ -213,6 +213,18 @@
             total: total,
             timestamp: new Date().toISOString()
         };
+
+        const vendorOrders = JSON.parse(localStorage.getItem('localcart-vendor-orders')) || [];
+        vendorOrders.unshift({
+            id: orderNumber,
+            customer: customerData.name,
+            customerDetails: customerData,
+            items: cartItems,
+            total: Number(total),
+            status: 'pending',
+            date: new Date().toLocaleString('en-IN')
+        });
+        localStorage.setItem('localcart-vendor-orders', JSON.stringify(vendorOrders));
 
         // Save order to localStorage
         localStorage.setItem('lastOrder', JSON.stringify(orderData));

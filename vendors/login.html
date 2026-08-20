@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LocalCart | Vendor Login</title>
+    <link rel="icon" type="image/png" href="../logo.png" />
+    <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+    <div class="page-shell">
+        <header class="topbar vendor-topbar">
+            <a class="brand-wrap" href="../index.html" aria-label="LocalCart home">
+                <div class="brand-mark">
+                    <img src="../logo.png" alt="LocalCart" width="55" height="50" />
+                </div>
+                <div>
+                    <div class="brand-name">LocalCart</div>
+                    <div class="brand-tag">Vendor Portal</div>
+                </div>
+            </a>
+            <div class="auth-header-actions"><span class="auth-header-note">New to LocalCart?</span><a class="ghost-btn" href="signup.html">Create account</a></div>
+        </header>
+
+        <main class="vendor-login-layout">
+            <section class="vendor-auth-intro" aria-labelledby="loginIntroTitle">
+                <p class="auth-badge">Local commerce, made simple</p>
+                <h1 id="loginIntroTitle">Start selling to customers nearby.</h1>
+                <p>Sign in to manage your products, keep stock up to date, and stay ready for your next local order.</p>
+                <div class="auth-feature-list" aria-label="Vendor benefits">
+                    <span><b>01</b> Manage your catalog</span>
+                    <span><b>02</b> Track inventory at a glance</span>
+                    <span><b>03</b> Reach nearby shoppers</span>
+                </div>
+            </section>
+
+            <section class="vendor-auth-card" aria-labelledby="loginTitle">
+                <p class="eyebrow">Vendor access</p>
+                <h2 id="loginTitle">Welcome back</h2>
+                <p class="vendor-login-subtitle">Log in to open your vendor dashboard.</p>
+
+                <form id="vendorLoginForm" novalidate>
+                    <div class="auth-form-grid">
+                        <div class="auth-field auth-field-wide"><label for="vendorEmail">Email address</label><input id="vendorEmail" name="email" type="email" autocomplete="email" placeholder="you@yourstore.com" required /></div>
+                        <div class="auth-field auth-field-wide"><label for="vendorPassword">Password</label><div class="password-field"><input id="vendorPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required minlength="6" /><button type="button" class="password-toggle" data-target="vendorPassword">Show</button></div></div>
+                    </div>
+
+                    <div class="vendor-login-options">
+                        <label class="remember-option"><input type="checkbox" id="rememberVendor" /> <span>Remember me</span></label>
+                        <a href="mailto:support@localcart.example?subject=Vendor%20password%20reset">Forgot password?</a>
+                    </div>
+
+                    <p class="vendor-login-message" id="loginMessage" role="alert" aria-live="polite"></p>
+                    <button class="primary-btn vendor-login-submit" type="submit">Log in to dashboard</button>
+                </form>
+
+                <p class="vendor-login-footer">New to LocalCart? <a href="signup.html">Create a vendor account</a></p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById("vendorLoginForm");
+        const loginMessage = document.getElementById("loginMessage");
+
+        document.querySelector(".password-toggle").addEventListener("click", event => {
+            const input = document.getElementById(event.currentTarget.dataset.target);
+            input.type = input.type === "password" ? "text" : "password";
+            event.currentTarget.textContent = input.type === "password" ? "Show" : "Hide";
+        });
+
+        loginForm.addEventListener("submit", event => {
+            event.preventDefault();
+            loginMessage.textContent = "";
+
+            if (!loginForm.checkValidity()) {
+                loginMessage.classList.add("auth-message-error");
+                loginMessage.textContent = "Enter a valid email and a password with at least 6 characters.";
+                loginForm.reportValidity();
+                return;
+            }
+
+            if (document.getElementById("rememberVendor").checked) {
+                localStorage.setItem("localcart-vendor-email", document.getElementById("vendorEmail").value.trim());
+            } else {
+                localStorage.removeItem("localcart-vendor-email");
+            }
+
+            window.location.href = "dashboard.html";
+        });
+
+        const rememberedEmail = localStorage.getItem("localcart-vendor-email");
+        if (rememberedEmail) {
+            document.getElementById("vendorEmail").value = rememberedEmail;
+            document.getElementById("rememberVendor").checked = true;
+        }
+    </script>
+</body>
+</html>

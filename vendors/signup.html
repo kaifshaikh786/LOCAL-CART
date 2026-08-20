@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LocalCart | Vendor Sign Up</title>
+    <link rel="icon" type="image/png" href="../logo.png" />
+    <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+    <div class="page-shell">
+        <header class="topbar vendor-topbar">
+            <a class="brand-wrap" href="../index.html" aria-label="LocalCart home">
+                <div class="brand-mark"><img src="../logo.png" alt="LocalCart" width="55" height="50" /></div>
+                <div><div class="brand-name">LocalCart</div><div class="brand-tag">Vendor Portal</div></div>
+            </a>
+            <div class="auth-header-actions"><span class="auth-header-note">Already a vendor?</span><a class="ghost-btn" href="login.html">Log in</a></div>
+        </header>
+
+        <main class="vendor-auth-layout vendor-signup-layout">
+            <section class="vendor-auth-intro" aria-labelledby="signupIntroTitle">
+                <p class="auth-badge">Local commerce, made simple</p>
+                <h1 id="signupIntroTitle">Build your store and reach more nearby customers.</h1>
+                <p>Set up your vendor account in minutes. You will be able to list products, manage inventory, and follow every order from one place.</p>
+                <div class="auth-feature-list">
+                    <span><b>01</b> Create your store profile</span>
+                    <span><b>02</b> Add your first products</span>
+                    <span><b>03</b> Start receiving local orders</span>
+                </div>
+            </section>
+
+            <section class="vendor-auth-card" aria-labelledby="signupTitle">
+                <p class="eyebrow">Vendor registration</p>
+                <h2 id="signupTitle">Create your account</h2>
+                <p class="vendor-login-subtitle">Use your store details to get started.</p>
+
+                <form id="vendorSignupForm" novalidate>
+                    <div class="auth-form-grid">
+                        <div class="auth-field auth-field-wide"><label for="storeName">Store name</label><input id="storeName" name="storeName" type="text" autocomplete="organization" placeholder="ABC Electronics" required minlength="2" /></div>
+                        <div class="auth-field"><label for="ownerName">Your name</label><input id="ownerName" name="ownerName" type="text" autocomplete="name" placeholder="Alex Morgan" required minlength="2" /></div>
+                        <div class="auth-field"><label for="vendorPhone">Phone number</label><input id="vendorPhone" name="phone" type="tel" autocomplete="tel" placeholder="+1 555 012 3456" required minlength="7" /></div>
+                        <div class="auth-field auth-field-wide"><label for="vendorEmail">Email address</label><input id="vendorEmail" name="email" type="email" autocomplete="email" placeholder="you@yourstore.com" required /></div>
+                        <div class="auth-field"><label for="vendorPassword">Password</label><div class="password-field"><input id="vendorPassword" name="password" type="password" autocomplete="new-password" placeholder="At least 6 characters" required minlength="6" /><button type="button" class="password-toggle" data-target="vendorPassword">Show</button></div></div>
+                        <div class="auth-field"><label for="confirmPassword">Confirm password</label><div class="password-field"><input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Repeat password" required minlength="6" /><button type="button" class="password-toggle" data-target="confirmPassword">Show</button></div></div>
+                    </div>
+                    <label class="terms-option"><input type="checkbox" id="vendorTerms" required /> <span>I agree to the LocalCart vendor terms and privacy policy.</span></label>
+                    <p class="vendor-login-message" id="signupMessage" role="alert" aria-live="polite"></p>
+                    <button class="primary-btn vendor-login-submit" type="submit">Create vendor account</button>
+                </form>
+
+                <p class="vendor-login-footer">Already have an account? <a href="login.html">Log in here</a></p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const signupForm = document.getElementById("vendorSignupForm");
+        const signupMessage = document.getElementById("signupMessage");
+
+        document.querySelectorAll(".password-toggle").forEach(button => {
+            button.addEventListener("click", () => {
+                const input = document.getElementById(button.dataset.target);
+                input.type = input.type === "password" ? "text" : "password";
+                button.textContent = input.type === "password" ? "Show" : "Hide";
+            });
+        });
+
+        signupForm.addEventListener("submit", event => {
+            event.preventDefault();
+            signupMessage.className = "vendor-login-message";
+            signupMessage.textContent = "";
+            const password = document.getElementById("vendorPassword").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            if (!signupForm.checkValidity()) {
+                signupMessage.classList.add("auth-message-error");
+                signupMessage.textContent = "Complete all required fields and accept the vendor terms.";
+                signupForm.reportValidity();
+                return;
+            }
+            if (password !== confirmPassword) {
+                signupMessage.classList.add("auth-message-error");
+                signupMessage.textContent = "Passwords do not match.";
+                document.getElementById("confirmPassword").focus();
+                return;
+            }
+
+            localStorage.setItem("localcart-vendor-profile", JSON.stringify({
+                storeName: document.getElementById("storeName").value.trim(),
+                ownerName: document.getElementById("ownerName").value.trim(),
+                email: document.getElementById("vendorEmail").value.trim(),
+                phone: document.getElementById("vendorPhone").value.trim()
+            }));
+            signupMessage.classList.add("auth-message-success");
+            signupMessage.textContent = "Account created. Opening your dashboard...";
+            setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
+        });
+    </script>
+</body>
+</html>
