@@ -1,6 +1,6 @@
-# LocalCart - Local Marketplace Platform
+# LocalCart
 
-A modern local marketplace platform connecting customers with nearby vendors. Customers can browse products, compare prices, and place orders which are directly notified to vendors via WhatsApp.
+A local marketplace connecting customers with nearby vendors. The project is split into a React + TypeScript frontend and an Express API backend.
 
 ## 🎯 Features
 
@@ -19,46 +19,31 @@ A modern local marketplace platform connecting customers with nearby vendors. Cu
 - 📦 **Order Management** - Track and manage incoming orders
 - 🚚 **Delivery Options** - Support pickup and home delivery
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 LOCAL-CART/
-├── index.html              # Home page
-├── java.js                 # Core JavaScript functions (cart management)
-├── style.css               # Global styles
-├── customers/              # Customer-facing pages
-│   ├── product.html        # Product listing
-│   ├── p-details.html      # Product details & vendor comparison
-│   ├── cart.html           # Shopping cart
-│   ├── order.html          # Checkout form
-│   └── order-confirmation.html  # Order confirmation
-├── vendors/                # Vendor dashboard (to be developed)
-├── admin/                  # Admin panel (to be developed)
-└── backend/                # Node.js/Express server
-    ├── server.js           # Main server file
-    ├── package.json        # Node dependencies
-    ├── .env.example        # Environment variables template
-    └── README.md           # Backend setup guide
+├── frontend/               # React + TypeScript storefront and role workspaces
+│   ├── src/App.tsx         # Customer, vendor, and admin routes
+│   └── src/styles.css      # Responsive visual system
+├── backend/                # Node.js/Express API and Twilio integration
+├── IMPLEMENTATION.md       # Product and technical notes
+└── QUICKSTART.md           # Quick setup reference
 ```
 
 ## 🚀 Getting Started
 
-### Frontend Setup (Local)
+### Frontend Setup
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd LOCAL-CART
-   ```
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-2. **Open in browser:**
-   - Simply open `index.html` in a web browser
-   - Or use a local server:
-     ```bash
-     python -m http.server 8000
-     # OR
-     php -S localhost:8000
-     ```
+Open `http://localhost:5173`. The storefront and demo panels work without the backend; when the backend is running, the Vite proxy forwards `/api` requests to port `5000`.
+
+Demo panels are available at `/customer`, `/vendor/login`, and `/admin/login`. Customers do not need an account. Vendor and admin use the demo login form until real authentication is added by the backend.
 
 ### Backend Setup (WhatsApp Integration)
 

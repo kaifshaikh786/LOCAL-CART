@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -15,24 +14,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '..')));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
-});
-
-app.get('/customers/products.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'customers', 'product.html'));
-});
-
-app.get('/customer/products.html', (req, res) => {
-  res.redirect('/customers/products.html');
-});
-
-app.get('/products.html', (req, res) => {
-  res.redirect('/customers/products.html');
-});
-
 // Twilio client setup
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -70,18 +51,26 @@ app.post('/api/send-order', async (req, res) => {
             });
         }
 
-        // Format customer phone number (assuming Indian format)
-        const vendorPhone = formatPhoneNumber(customer.phone);
+        // Notify the seller contact saved on the purchased product, never the customer.
+        const vendorPhones = [...new Set(items.map(item => item.vendorPhone).filter(Boolean))];
+        if (!vendorPhones.length) {
+            return res.json({
+                success: true,
+                message: 'Order recorded. Vendor WhatsApp contact is not configured.',
+                twilioConfigured: false
+            });
+        }
 
         // Create order message
         const orderMessage = formatOrderMessage(orderNumber, customer, items, total);
 
         // Send WhatsApp message via Twilio
-        const message = await client.messages.create({
+        const messages = await Promise.all(vendorPhones.map(vendorPhone => client.messages.create({
             body: orderMessage,
             from: `whatsapp:${twilioPhoneNumber}`,
-            to: `whatsapp:${vendorPhone}`
-        });
+            to: `whatsapp:${formatPhoneNumber(vendorPhone)}`
+        })));
+        const message = messages[0];
 
         console.log(`✓ WhatsApp message sent to vendor. SID: ${message.sid}`);
 
@@ -89,6 +78,7 @@ app.post('/api/send-order', async (req, res) => {
             success: true,
             message: 'Order notification sent to vendor',
             messageSid: message.sid,
+            notifiedVendors: vendorPhones.length,
             twilioConfigured: true
         });
 
