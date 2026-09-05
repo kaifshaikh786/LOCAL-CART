@@ -1,0 +1,80 @@
+@LocalCart.Api_HostAddress = http://localhost:5168
+
+GET {{LocalCart.Api_HostAddress}}/weatherforecast/
+### 1. Register a New Vendor (Vendor Portal Sign Up)
+POST {{LocalCart.Api_HostAddress}}/auth/register-vendor
+Content-Type: application/json
+
+{
+  "storeName": "Prime Supermarket",
+  "ownerName": "Tanish Gupta",
+  "email": "tanish.vendor@localcart.com",
+  "phoneNumber": "+91 9876543210",
+  "password": "Password123!",
+  "address": "Shop 12, Main Street Market",
+  "city": "Mumbai"
+}
+
+### 2. Register a General User / Customer
+POST {{LocalCart.Api_HostAddress}}/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Rahul Sharma",
+  "email": "rahul.customer@localcart.com",
+  "phoneNumber": "+91 9123456780",
+  "password": "Password123!",
+  "role": "Customer"
+}
+
+### 3. Register Duplicate Email (Expect 409 Conflict)
+POST {{LocalCart.Api_HostAddress}}/auth/register-vendor
+Content-Type: application/json
+
+{
+  "storeName": "Prime Duplicate",
+  "ownerName": "Tanish Gupta",
+  "email": "tanish.vendor@localcart.com",
+  "phoneNumber": "+91 9876543210",
+  "password": "Password123!"
+}
+
+### 4. Login with Valid Credentials
+# @name loginRequest
+POST {{LocalCart.Api_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "tanish.vendor@localcart.com",
+  "password": "Password123!"
+}
+
+### Capture token from login response
+@authToken = {{loginRequest.response.body.accessToken}}
+
+### 5. Login with Invalid Password (Expect 401 Unauthorized)
+POST {{LocalCart.Api_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "tanish.vendor@localcart.com",
+  "password": "WrongPassword!"
+}
+
+### 6. Get Authenticated User Profile (Authorized with Bearer Token)
+GET {{LocalCart.Api_HostAddress}}/auth/me
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+###
+### 7. Get Current User without Token (Expect 401 Unauthorized)
+GET {{LocalCart.Api_HostAddress}}/auth/me
+Accept: application/json
+
+### 8. Get All Vendors
+GET {{LocalCart.Api_HostAddress}}/vendors
+Accept: application/json
+
+### 9. Get All Product Categories
+GET {{LocalCart.Api_HostAddress}}/product-categories
+Accept: application/json
