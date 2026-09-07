@@ -10,4 +10,5 @@ public interface IVendorRepository
     Task UpdateAsync(Vendor vendor);
     Task<bool> DeleteAsync(int id); // soft delete -> sets DeletedAt
     Task<bool> ExistsByEmailAsync(string email, int? excludeId = null);
+    Task<Vendor?> GetByAppUserIdAsync(int appUserId);
 }

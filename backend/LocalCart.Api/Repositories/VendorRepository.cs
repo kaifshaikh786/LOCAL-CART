@@ -67,4 +67,11 @@ public class VendorRepository : IVendorRepository
 
         return await query.AnyAsync();
     }
+
+    public async Task<Vendor?> GetByAppUserIdAsync(int appUserId)
+    {
+        return await _dbContext.Vendors
+            .AsNoTracking()
+            .FirstOrDefaultAsync(v => v.AppUserId == appUserId && v.DeletedAt == null);
+    }
 }
