@@ -1,252 +1,121 @@
-# LocalCart
+﻿# LocalCart - Hyperlocal E-Commerce Platform
 
-A local marketplace connecting customers with nearby vendors. The project is split into a React + TypeScript frontend and an Express API backend.
-
-## 🎯 Features
-
-### Customer Side
-- ✅ **Browse Products** - No login required, instant access
-- ✅ **Compare Prices** - See prices from multiple vendors
-- ✅ **Shopping Cart** - Add products and manage quantities
-- ✅ **Simple Checkout** - Just name, email, phone, and address
-- ✅ **Pickup or Delivery** - Choose delivery method at checkout
-- ✅ **Order Confirmation** - Get order number instantly
-- ✅ **Local Storage Cart** - Cart persists across sessions until checkout
-
-### Vendor Side
-- 📱 **WhatsApp Notifications** - Get order alerts on WhatsApp with full customer & item details
-- 📊 **Dashboard** - Manage products and prices (admin folder)
-- 📦 **Order Management** - Track and manage incoming orders
-- 🚚 **Delivery Options** - Support pickup and home delivery
-
-## Project Structure
-
-```
-LOCAL-CART/
-├── frontend/               # React + TypeScript storefront and role workspaces
-│   ├── src/App.tsx         # Customer, vendor, and admin routes
-│   └── src/styles.css      # Responsive visual system
-├── backend/                # Node.js/Express API and Twilio integration
-├── IMPLEMENTATION.md       # Product and technical notes
-└── QUICKSTART.md           # Quick setup reference
-```
-
-## 🚀 Getting Started
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open `http://localhost:5173`. The storefront and demo panels work without the backend; when the backend is running, the Vite proxy forwards `/api` requests to port `5000`.
-
-Demo panels are available at `/customer`, `/vendor/login`, and `/admin/login`. Customers do not need an account. Vendor and admin use the demo login form until real authentication is added by the backend.
-
-### Backend Setup (WhatsApp Integration)
-
-1. **Navigate to backend folder:**
-   ```bash
-   cd backend
-   npm install
-   ```
-
-2. **Setup Twilio (WhatsApp Provider):**
-   - Create a Twilio account at https://www.twilio.com
-   - Enable WhatsApp Business Profile
-   - Note your Account SID, Auth Token, and WhatsApp number
-
-3. **Configure environment:**
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your Twilio credentials
-   ```
-
-4. **Start backend server:**
-   ```bash
-   npm start
-   ```
-   Server runs on `http://localhost:5000`
-
-## 💡 How It Works
-
-### Customer Flow
-1. Customer browses products without login
-2. Compares prices from different vendors
-3. Adds items to cart (stored in localStorage)
-4. Proceeds to checkout
-5. Enters delivery details (name, phone, email, address)
-6. Selects pickup or delivery
-7. Submits order
-8. Gets order number and confirmation
-
-### Vendor Flow
-1. Vendor receives WhatsApp message with:
-   - Order number
-   - Customer name and contact details
-   - Item list with quantities
-   - Total amount
-   - Delivery type & address
-   - Special instructions (if any)
-2. Vendor confirms/processes order
-3. Vendor contacts customer directly
-
-### Backend Flow
-1. Frontend sends order data to `/api/send-order`
-2. Backend formats WhatsApp message
-3. Twilio sends message to vendor
-4. Order confirmation page displays to customer
-5. Cart clears automatically
-
-## 🛠️ Technology Stack
-
-### Frontend
-- **HTML5** - Structure
-- **CSS3** - Styling & Responsive Design
-- **JavaScript** - Cart management & interactivity
-- **localStorage** - Client-side cart storage
-
-### Backend
-- **Node.js** - Runtime
-- **Express.js** - Web framework
-- **Twilio** - WhatsApp API
-
-## 📱 Responsive Design
-
-The platform is fully responsive:
-- ✅ Desktop (full grid layout)
-- ✅ Tablet (2-column layout)
-- ✅ Mobile (1-column stack layout)
-
-## 🔧 Configuration
-
-### Twilio Setup
-1. Get credentials from Twilio Console
-2. Create .env file from .env.example
-3. Fill in credentials:
-   ```
-   TWILIO_ACCOUNT_SID=AC...
-   TWILIO_AUTH_TOKEN=...
-   TWILIO_PHONE_NUMBER=whatsapp:+...
-   ```
-
-### CORS Setup
-The backend has CORS enabled for frontend requests. Update if hosting on different domains.
-
-## 📊 Product Data Structure
-
-Each product includes:
-```javascript
-{
-  name: "Product Name",
-  price: 1499,
-  vendor: "Vendor Name",
-  category: "electronics",
-  rating: 4.5,
-  distance: "1.2 km"
-}
-```
-
-## 🛒 Cart Data Structure
-
-Cart items stored in localStorage:
-```javascript
-[
-  {
-    name: "Product Name",
-    price: 1499,
-    vendor: "Vendor Name",
-    quantity: 1
-  }
-]
-```
-
-## 📦 Order Data Structure
-
-When order is placed:
-```javascript
-{
-  orderNumber: "LC1692451234",
-  customer: {
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+91 9876543210",
-    address: "123 Main St",
-    deliveryType: "delivery",
-    specialNotes: "..."
-  },
-  items: [...],
-  total: 1499,
-  timestamp: "2026-08-13T10:30:00Z"
-}
-```
-
-## 🔐 Security Notes
-
-### Current Implementation
-- No user authentication (intentional - no profiles needed)
-- Order data sent to backend for WhatsApp
-- Cart stored locally on browser
-
-### Future Enhancements
-- Add input validation on both frontend & backend
-- Implement rate limiting on API endpoints
-- Add order verification before WhatsApp send
-- Encrypt sensitive data in transit
-
-## 🚧 Planned Features
-
-- [ ] Vendor dashboard to manage products/prices
-- [ ] Admin panel for platform management
-- [ ] User ratings and reviews
-- [ ] Order tracking with status updates
-- [ ] Payment gateway integration
-- [ ] SMS notifications as WhatsApp fallback
-- [ ] Customer favorite vendors
-- [ ] Search and advanced filters
-- [ ] Push notifications
-
-## 📝 API Documentation
-
-See [backend/README.md](backend/README.md) for complete API documentation.
-
-## 🐛 Troubleshooting
-
-### Cart not saving?
-- Clear browser cache
-- Check localStorage is enabled
-- Check browser console for errors
-
-### WhatsApp not sending?
-- Verify Twilio credentials in .env
-- Check vendor phone number format
-- Ensure Twilio account has WhatsApp Business Profile
-
-### Frontend can't reach backend?
-- Check backend server is running
-- Verify backend URL in frontend code
-- Check CORS headers
-
-## 📚 Learning Resources
-
-- [Express.js Docs](https://expressjs.com/)
-- [Twilio WhatsApp API](https://www.twilio.com/whatsapp)
-- [localStorage API](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
-
-## 📄 License
-
-This project is licensed under the MIT License - see LICENSE file for details.
-
-## 👥 Contributing
-
-Contributions are welcome! Please feel free to submit pull requests or open issues.
-
-## 📧 Support
-
-For support, email support@localcart.com or open an issue in the repository.
+LocalCart is a modern, hyperlocal marketplace platform connecting customers with nearby local vendors for groceries, essentials, electronics, and local goods.
 
 ---
 
-**LocalCart** - Connecting local vendors with nearby customers 🏪💼
+## Architecture & Project Structure
+
+The project has been upgraded with a clean, separated architecture:
+
+`
+LOCAL-CART/
+|-- Backend/
+|   \-- LocalCart.Api/              # ASP.NET Core 9.0 Web API
+|       |-- Controllers/            # REST API endpoints (Products, Vendors, Orders, Admin, etc.)
+|       |-- Data/                   # EF Core DbContext, Migrations & Configurations
+|       |-- Models/                 # Entities (Product, Vendor, Order, OrderItem, Customer, etc.)
+|       |-- DTOs/                   # Request & Response Data Transfer Objects
+|       |-- Services/               # Business logic, WhatsApp notification service, Cart rules
+|       |-- appsettings.json        # Database connection strings & configuration
+|       \-- Program.cs              # Dependency injection, middleware pipeline, CORS setup
+|
+|-- Frontend/
+|   \-- LocalCart-Web/              # Modern React + TypeScript Web Application
+|       |-- src/
+|       |   |-- pages/              # Dedicated route pages (Home, Cart, Checkout, Vendor, Admin, Orders)
+|       |   |   |-- HomePage.tsx
+|       |   |   |-- CartPage.tsx
+|       |   |   |-- CheckoutPage.tsx
+|       |   |   |-- VendorDashboardPage.tsx
+|       |   |   |-- VendorLoginPage.tsx
+|       |   |   |-- AdminDashboardPage.tsx
+|       |   |   |-- AdminLoginPage.tsx
+|       |   |   \-- OrderTrackingPage.tsx
+|       |   |-- components/         # Reusable UI components (Navbar, Footer, ProductCard, etc.)
+|       |   |-- context/            # Global state (CartContext with single-vendor cart rule)
+|       |   |-- services/           # API clients and mock data fallbacks
+|       |   |-- types/              # TypeScript interfaces and domain types
+|       |   |-- App.tsx             # Routing & application shell
+|       |   \-- main.tsx            # Application entry point
+|       |-- index.html
+|       |-- vite.config.ts
+|       \-- package.json
+|
+\-- .gitignore                      # Comprehensive .gitignore for .NET & React/Vite/Node
+`
+
+---
+
+## Key Features
+
+### Customer Experience
+- Hyperlocal Discovery: Browse products from nearby vendors with real-time stock and pricing.
+- Single-Vendor Cart Enforcement: Focused ordering per vendor to prevent disjointed multi-vendor fulfillment issues.
+- Persistent Local Cart: Cart contents safely preserved across sessions.
+- Streamlined Checkout: Rapid checkout with delivery address and contact details.
+- Order Tracking: Real-time order status tracking with order lookup.
+
+### Vendor Management
+- Vendor Dashboard: Manage catalog, inventory, pricing, and live orders.
+- Order Alerts: Instant WhatsApp notifications for new customer orders.
+- Status Updates: Mark orders as Preparing, Ready for Pickup, Out for Delivery, or Delivered.
+
+### Admin Management
+- Platform Analytics: Total orders, revenue, active vendors, and top-selling categories.
+- Vendor & Catalog Oversight: Approve vendors, audit product catalogs, and oversee operations.
+
+---
+
+## Getting Started
+
+### Prerequisites
+- .NET 9 SDK
+- Node.js (v18 or higher) & npm
+- SQL Server (LocalDB, Express, or Azure SQL)
+
+---
+
+### Backend Setup (.NET 9 Web API)
+
+1. Navigate to the backend directory:
+   `ash
+   cd Backend/LocalCart.Api
+   `
+
+2. Configure database connection in ppsettings.json (or ppsettings.Development.json).
+
+3. Restore dependencies and run the API:
+   `ash
+   dotnet restore
+   dotnet run
+   `
+
+   The Swagger / OpenAPI documentation will be accessible at:
+   https://localhost:7001/swagger or http://localhost:5000/swagger
+
+---
+
+### Frontend Setup (React 19 + Vite + Tailwind CSS)
+
+1. Navigate to the frontend directory:
+   `ash
+   cd Frontend/LocalCart-Web
+   `
+
+2. Install dependencies:
+   `ash
+   npm install
+   `
+
+3. Start the Vite development server:
+   `ash
+   npm run dev
+   `
+
+4. Open http://localhost:5173 in your browser.
+
+---
+
+## License
+This project is licensed under the MIT License.

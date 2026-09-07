@@ -1,0 +1,208 @@
+@LocalCart.Api_HostAddress = http://localhost:5168
+
+### 1. Register a New Vendor (Vendor Portal Sign Up)
+POST {{LocalCart.Api_HostAddress}}/auth/register-vendor
+Content-Type: application/json
+
+{
+  "storeName": "Prime Supermarket",
+  "ownerName": "Tanish Gupta",
+  "email": "tanish.vendor@localcart.com",
+  "phoneNumber": "+91 9876543210",
+  "password": "Password123!",
+  "address": "Shop 12, Main Street Market",
+  "city": "Mumbai"
+}
+
+### 2. Register a General User / Customer
+POST {{LocalCart.Api_HostAddress}}/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Rahul Sharma",
+  "email": "rahul.customer@localcart.com",
+  "phoneNumber": "+91 9123456780",
+  "password": "Password123!",
+  "role": "Customer"
+}
+
+### 3. Register Duplicate Email (Expect 409 Conflict)
+POST {{LocalCart.Api_HostAddress}}/auth/register-vendor
+Content-Type: application/json
+
+{
+  "storeName": "Prime Duplicate",
+  "ownerName": "Tanish Gupta",
+  "email": "tanish.vendor@localcart.com",
+  "phoneNumber": "+91 9876543210",
+  "password": "Password123!"
+}
+
+### 4. Login with Valid Credentials (Vendor)
+# @name loginRequest
+POST {{LocalCart.Api_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "tanish@localcart.com",
+  "password": "Password123!"
+}
+
+### Capture token from login response
+@authToken = {{loginRequest.response.body.accessToken}}
+
+### 5. Login with Invalid Password (Expect 401 Unauthorized)
+POST {{LocalCart.Api_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "tanish.vendor@localcart.com",
+  "password": "WrongPassword!"
+}
+
+### 6. Get Authenticated User Profile (Authorized with Bearer Token)
+GET {{LocalCart.Api_HostAddress}}/auth/me
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 7. Get Current User without Token (Expect 401 Unauthorized)
+GET {{LocalCart.Api_HostAddress}}/auth/me
+Accept: application/json
+
+### 8. Get All Vendors
+GET {{LocalCart.Api_HostAddress}}/vendors
+Accept: application/json
+
+### 9. Get All Product Categories
+GET {{LocalCart.Api_HostAddress}}/product-categories
+Accept: application/json
+
+### -------------------------------------------------------------
+### PRODUCT MANAGEMENT ENDPOINTS (NEW)
+### -------------------------------------------------------------
+
+### 10. Vendor Add Product (Authorized)
+# @name createProductRequest
+POST {{LocalCart.Api_HostAddress}}/products
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Sony WH-1000XM5 Wireless Noise Cancelling Headphones",
+  "productCategoryId": 13,
+  "price": 24999.00,
+  "stockQuantity": 15,
+  "description": "Industry leading noise cancelling bluetooth headphones with 30-hour battery life.",
+  "unit": "1 piece",
+  "isAvailable": true,
+  "imageUrls": [
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500"
+  ]
+}
+
+@createdProductId = {{createProductRequest.response.body.productId}}
+
+### 11. Vendor View Their Own Products
+GET {{LocalCart.Api_HostAddress}}/products/my-products
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 12. Public Customer Browsing (No Auth Required)
+GET {{LocalCart.Api_HostAddress}}/products
+Accept: application/json
+
+### 13. Public Customer Filter by Category
+GET {{LocalCart.Api_HostAddress}}/products?categoryId=13
+Accept: application/json
+
+### 14. Public Customer Search by Keyword
+GET {{LocalCart.Api_HostAddress}}/products?search=Headphones
+Accept: application/json
+
+### 15. Public Get Product By ID
+GET {{LocalCart.Api_HostAddress}}/products/{{createdProductId}}
+Accept: application/json
+
+### 16. Vendor Update Product (Authorized)
+PUT {{LocalCart.Api_HostAddress}}/products/{{createdProductId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "price": 23999.00,
+  "stockQuantity": 12,
+  "description": "Discounted! Industry leading noise cancelling bluetooth headphones."
+}
+
+### 17. Add Product Without Token (Expect 401 Unauthorized)
+POST {{LocalCart.Api_HostAddress}}/products
+Content-Type: application/json
+
+{
+  "name": "Unauthorized Product",
+  "productCategoryId": 13,
+  "price": 999.00,
+  "stockQuantity": 5
+}
+
+### 18. Vendor Delete Product (Authorized)
+DELETE {{LocalCart.Api_HostAddress}}/products/{{createdProductId}}
+Authorization: Bearer {{authToken}}
+
+### 19. Public Book Order (Single Vendor)
+POST {{LocalCart.Api_HostAddress}}/orders
+Content-Type: application/json
+
+{
+  "customerName": "Rahul Sharma",
+  "customerEmail": "rahul@example.com",
+  "customerPhone": "+91 9876543210",
+  "deliveryMethod": "Home Delivery",
+  "deliveryAddress": "Flat 402, Sunshine Apts, Bandra West, Mumbai",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 1
+    }
+  ]
+}
+
+### 20. Book Order with Multiple Vendors (Expect 400 Bad Request - One Vendor Policy)
+POST {{LocalCart.Api_HostAddress}}/orders
+Content-Type: application/json
+
+{
+  "customerName": "Rahul Sharma",
+  "customerEmail": "rahul@example.com",
+  "customerPhone": "+91 9876543210",
+  "deliveryMethod": "Home Delivery",
+  "deliveryAddress": "Flat 402, Sunshine Apts, Bandra West, Mumbai",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 1
+    },
+    {
+      "productId": 9,
+      "quantity": 1
+    }
+  ]
+}
+
+### 21. Vendor Get My Orders (Authorized)
+GET {{LocalCart.Api_HostAddress}}/orders/my-orders
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### 22. Public Lookup Order by Order Number
+GET {{LocalCart.Api_HostAddress}}/orders/lookup/LC-260907-XXXX
+Accept: application/json
+
+### 23. Vendor Update Order Status (Authorized)
+PUT {{LocalCart.Api_HostAddress}}/orders/1/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "Accepted"
+}
