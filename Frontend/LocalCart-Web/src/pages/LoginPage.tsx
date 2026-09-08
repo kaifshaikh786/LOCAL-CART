@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
@@ -11,120 +11,261 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
+type PortalRole = "Vendor" | "Admin";
+
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [params] = useSearchParams();
-  const { loginAsDemo } = useAuth();
+  const [params, setParams] = useSearchParams();
+  const { login, currentUser, currentRole, token } = useAuth();
 
-  const [role, setRole] = useState<"Vendor" | "Admin">(
-    params.get("role") === "admin" ? "Admin" : "Vendor",
-  );
+  const roleParam = params.get("role");
+  const role: PortalRole =
+    roleParam?.toLowerCase() === "admin" ? "Admin" : "Vendor";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const handleFillDemo = () => {
-    if (role === "Vendor") {
-      setEmail("vendor@localcart.in");
-      setPassword("vendor123");
-    } else {
-      setEmail("admin@localcart.in");
-      setPassword("admin123");
+  // Auto-redirect if user already has an active authenticated session
+  useEffect(() => {
+    if (token && (currentUser || currentRole)) {
+      if (currentRole === "admin") {
+        navigate("/admin", { replace: true });
+      } else if (currentRole === "vendor") {
+        navigate("/vendor", { replace: true });
+      } else {
+        navigate("/customer", { replace: true });
+      }
     }
-  };
+  }, [token, currentUser, currentRole, navigate]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  // Clean form inputs whenever role transitions
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+    setError("");
+  }, [role]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setBusy(true);
     setError("");
 
-    const targetRole = role.toLowerCase() as "vendor" | "admin";
-    loginAsDemo(targetRole);
-    setBusy(false);
-    navigate(`/${targetRole}`);
+    try {
+      const user = await login(email, password);
+      setBusy(false);
+      if (user.roles?.some((r) => r.toLowerCase() === "admin")) {
+        navigate("/admin");
+      } else if (user.roles?.some((r) => r.toLowerCase() === "vendor")) {
+        navigate("/vendor");
+      } else {
+        navigate("/customer");
+      }
+    } catch (err: any) {
+      setBusy(false);
+      const errMsg =
+        err.message || "Authentication failed. Check your credentials.";
+      setError(errMsg);
+    }
   };
 
   return (
     <main className="page login-page">
       {/* Visual Brand Side */}
-      <div className="login-visual">
+      <div
+        className="login-visual"
+        style={{
+          background: "#181614",
+          borderRadius: "28px",
+        }}
+      >
         <div className="flex items-center gap-3 mb-10">
-          <img
-            src="/localcart-logo.svg"
-            alt="LocalCart"
-            className="w-12 h-12"
-          />
+          <div className="logo-mark">LC</div>
           <div>
-            <b className="text-xl font-extrabold tracking-tight">
+            <b
+              className="text-xl font-extrabold tracking-tight"
+              style={{ color: "#ffffff" }}
+            >
               LocalCart Workspace
             </b>
-            <small className="block text-slate-400 font-mono text-[11px] uppercase">
+            <small
+              className="block font-mono text-[11px] uppercase"
+              style={{ color: "rgba(255, 255, 255, 0.8)" }}
+            >
               Unified Merchant & Ops Portal
             </small>
           </div>
         </div>
 
-        <span className="kicker">
-          <Sparkles size={14} /> TEAM ACCESS & DASHBOARD
+        <span className="kicker" style={{ color: "var(--rust)" }}>
+          <Sparkles size={14} /> SECURE PORTAL ACCESS
         </span>
 
-        <h1>
+        <h1 style={{ color: "#ffffff" }}>
           {role === "Vendor"
             ? "Bring your shop online."
             : "Keep local commerce moving."}
         </h1>
 
-        <p>
+        <p style={{ color: "rgba(255, 255, 255, 0.8)" }}>
           {role === "Vendor"
             ? "Manage your store catalog, incoming neighborhood orders, dispatch tracking, and revenue from one intuitive studio."
             : "Complete real-time platform oversight of every seller, order, dispute, and rupee moving across the hyper-local grid."}
         </p>
 
-        <div className="mt-8 pt-8 border-t border-slate-800 space-y-3 text-xs text-slate-300">
+        <div
+          className="mt-8 pt-8 space-y-3 text-xs"
+          style={{
+            borderTop: "1px solid rgba(255, 255, 255, 0.12)",
+            color: "rgba(255, 255, 255, 0.8)",
+          }}
+        >
           <div className="flex items-center gap-2">
-            <CheckCircle2 size={16} className="text-emerald-400" />
+            <CheckCircle2 size={16} style={{ color: "var(--green)" }} />
             <span>Instant order notifications & stock updates</span>
           </div>
           <div className="flex items-center gap-2">
-            <Shield size={16} className="text-orange-400" />
-            <span>Role-based secured merchant authentication</span>
+            <Shield size={16} style={{ color: "var(--rust)" }} />
+            <span>Role-based secured authentication</span>
           </div>
           <div className="flex items-center gap-2">
-            <Lock size={16} className="text-blue-400" />
+            <Lock size={16} style={{ color: "var(--gold)" }} />
             <span>Encrypted local session management</span>
           </div>
         </div>
       </div>
 
       {/* Login Form Card */}
-      <form className="login-form" onSubmit={handleSubmit}>
-        <span className="kicker">AUTHENTICATION</span>
-        <h2>Sign in to workspace</h2>
+      <form
+        className="login-form"
+        onSubmit={handleSubmit}
+        style={{
+          background: "var(--paper)",
+          borderRadius: "28px",
+          border: "1px solid var(--line)",
+          padding: "clamp(28px, 4vw, 48px)",
+        }}
+      >
+        {/* Prominent Friendly Shopper Callout Banner */}
+        <div
+          className="shopper-banner mb-6 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+          style={{
+            background: "var(--rust-light)",
+            border: "1px solid rgba(212, 98, 42, 0.25)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="p-2 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "var(--rust)", color: "#ffffff" }}
+            >
+              <ShoppingBag size={20} />
+            </div>
+            <div>
+              <p
+                className="text-xs sm:text-sm font-bold leading-tight"
+                style={{ color: "var(--ink)", margin: 0 }}
+              >
+                Customers shop 100% login-free!
+              </p>
+              <p
+                className="text-[11px] sm:text-xs leading-tight mt-0.5"
+                style={{ color: "var(--muted)", margin: 0 }}
+              >
+                No account needed to browse or order
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0"
+            style={{
+              background: "var(--rust)",
+              color: "#ffffff",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Explore Products <ArrowRight size={13} />
+          </Link>
+        </div>
 
-        {/* Role Switcher */}
-        <div className="role-switch">
+        <span className="kicker">AUTHENTICATION</span>
+        <h2>Sign in to portal</h2>
+
+        {/* Role Switcher: Clean Two-Tab Toggle */}
+        <div
+          className="role-switch mb-6 grid grid-cols-2 p-1 rounded-full"
+          style={{
+            background: "var(--cream)",
+            border: "1px solid var(--line)",
+          }}
+        >
           <button
             type="button"
             className={role === "Vendor" ? "selected" : ""}
-            onClick={() => {
-              setRole("Vendor");
-              setEmail("");
-              setPassword("");
-            }}
+            style={
+              role === "Vendor"
+                ? {
+                    background: "var(--ink)",
+                    color: "var(--cream)",
+                    borderRadius: "999px",
+                    padding: "8px clamp(8px, 2vw, 16px)",
+                    fontSize: "clamp(12px, 2.5vw, 14px)",
+                    fontWeight: 700,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }
+                : {
+                    border: "none",
+                    background: "transparent",
+                    color: "var(--muted)",
+                    borderRadius: "999px",
+                    padding: "8px clamp(8px, 2vw, 16px)",
+                    fontSize: "clamp(12px, 2.5vw, 14px)",
+                    fontWeight: 600,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }
+            }
+            onClick={() => setParams({ role: "vendor" })}
           >
-            <Store size={15} className="inline mr-1.5" /> Vendor Studio
+            <Store size={14} className="inline mr-1.5" /> Vendor Studio
           </button>
           <button
             type="button"
             className={role === "Admin" ? "selected" : ""}
-            onClick={() => {
-              setRole("Admin");
-              setEmail("");
-              setPassword("");
-            }}
+            style={
+              role === "Admin"
+                ? {
+                    background: "var(--ink)",
+                    color: "var(--cream)",
+                    borderRadius: "999px",
+                    padding: "8px clamp(8px, 2vw, 16px)",
+                    fontSize: "clamp(12px, 2.5vw, 14px)",
+                    fontWeight: 700,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }
+                : {
+                    border: "none",
+                    background: "transparent",
+                    color: "var(--muted)",
+                    borderRadius: "999px",
+                    padding: "8px clamp(8px, 2vw, 16px)",
+                    fontSize: "clamp(12px, 2.5vw, 14px)",
+                    fontWeight: 600,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }
+            }
+            onClick={() => setParams({ role: "admin" })}
           >
-            <Shield size={15} className="inline mr-1.5" /> Platform Admin
+            <Shield size={14} className="inline mr-1.5" /> Admin Operations
           </button>
         </div>
 
@@ -135,8 +276,18 @@ export const LoginPage: React.FC = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder={`${role.toLowerCase()}@localcart.in`}
+            placeholder={
+              role === "Vendor" ? "vendor@localcart.in" : "admin@localcart.in"
+            }
             required
+            style={{
+              background: "var(--cream)",
+              border: "1px solid var(--line)",
+              borderRadius: "12px",
+              padding: "14px 16px",
+              color: "var(--ink)",
+              outline: "none",
+            }}
           />
         </label>
 
@@ -149,45 +300,71 @@ export const LoginPage: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             required
+            style={{
+              background: "var(--cream)",
+              border: "1px solid var(--line)",
+              borderRadius: "12px",
+              padding: "14px 16px",
+              color: "var(--ink)",
+              outline: "none",
+            }}
           />
         </label>
 
-        <div className="flex justify-end mb-4">
-          <button
-            type="button"
-            onClick={handleFillDemo}
-            className="text-xs font-semibold text-orange-600 dark:text-orange-400 hover:underline"
-          >
-            ⚡ Auto-fill {role} Demo
-          </button>
-        </div>
-
         <button
           type="submit"
-          className="btn btn-dark full py-3.5"
+          className="btn btn-dark full py-3.5 mt-2"
+          style={{ width: "100%" }}
           disabled={busy}
         >
           {busy ? (
-            "Authenticating..."
+            "Authenticating with server..."
           ) : (
             <>
-              Continue to {role} Portal <ArrowRight size={16} />
+              Continue to{" "}
+              {role === "Vendor" ? "Vendor Studio" : "Admin Operations"}{" "}
+              <ArrowRight size={16} />
             </>
           )}
         </button>
 
-        {error && <p className="login-error">{error}</p>}
-
-        <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-          <p className="text-xs text-slate-500 mb-2">
-            Are you a customer wanting to shop?
-          </p>
-          <Link
-            to="/products"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-orange-600"
+        {error && (
+          <div
+            className="mt-4 text-xs font-semibold"
+            style={{
+              color: "var(--rust)",
+              background: "var(--rust-light)",
+              border: "1px solid rgba(212, 98, 42, 0.2)",
+              borderRadius: "10px",
+              padding: "10px 14px",
+            }}
           >
-            <ShoppingBag size={14} /> Shop without signing in (Guest Checkout)
-          </Link>
+            {error}
+          </div>
+        )}
+
+        {/* Portal Links & Provisioning Notice */}
+        <div
+          className="mt-6 pt-4 text-center text-xs"
+          style={{ borderTop: "1px solid var(--line)", color: "var(--muted)" }}
+        >
+          {role === "Vendor" ? (
+            <span>
+              New store owner in the neighborhood?{" "}
+              <Link
+                to="/signup"
+                className="font-bold underline ml-1"
+                style={{ color: "var(--rust)" }}
+              >
+                Register your shop &rarr;
+              </Link>
+            </span>
+          ) : (
+            <span>
+              Administrator access is strictly provisioned by database
+              administrators.
+            </span>
+          )}
         </div>
       </form>
     </main>

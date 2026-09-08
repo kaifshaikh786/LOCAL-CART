@@ -23,9 +23,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAdd }) => {
     }
   };
 
-  const discountPercent = Math.round(
-    (1 - product.price / product.oldPrice) * 100,
+  const hasDiscount = Boolean(
+    product.oldPrice && product.oldPrice > product.price,
   );
+  const discountPercent = hasDiscount
+    ? Math.round((1 - product.price / product.oldPrice) * 100)
+    : 0;
 
   return (
     <article className="product-card">
@@ -38,22 +41,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAdd }) => {
             <h3>{product.name}</h3>
           </Link>
           <button type="button" className="heart" aria-label="Save product">
-            <Heart size={17} />
+            <Heart size={16} />
           </button>
         </div>
         <p className="vendor">
-          <MapPin size={13} /> {product.vendor} · {product.distance}
+          <MapPin size={12} /> {product.vendor || "Neighborhood Store"}{" "}
+          {product.distance ? `· ${product.distance}` : ""}
         </p>
         <div className="rating">
-          <Star size={14} fill="currentColor" /> {product.rating}
+          <Star size={13} fill="currentColor" />{" "}
+          {typeof product.rating === "number" ? product.rating : 4.8}
         </div>
         <div className="price-row">
           <b>{money(product.price)}</b>
-          <del>{money(product.oldPrice)}</del>
-          <span>{discountPercent}% off</span>
+          {hasDiscount && <del>{money(product.oldPrice)}</del>}
+          {hasDiscount && discountPercent > 0 && (
+            <span>{discountPercent}% off</span>
+          )}
         </div>
-        <button type="button" className="add-btn" onClick={handleAdd}>
-          Add to bag <Plus size={16} />
+        <button type="button" className="add-btn mt-auto" onClick={handleAdd}>
+          Add to bag <Plus size={15} />
         </button>
       </div>
     </article>

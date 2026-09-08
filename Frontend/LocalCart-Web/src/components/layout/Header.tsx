@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  ArrowRight,
+  LayoutGrid,
+  LogOut,
+  Menu,
   Moon,
   Search,
+  ShieldCheck,
   ShoppingBag,
   Store,
   Sun,
@@ -12,21 +15,22 @@ import {
 } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useTheme } from "../../context/ThemeContext";
-import { CATEGORIES } from "../../data/mockData";
+import { useAuth } from "../../context/AuthContext";
 
 export const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { itemCount } = useCart();
   const { darkMode, toggleTheme } = useTheme();
+  const { currentUser, currentRole, token, logout } = useAuth();
 
   const [open, setOpen] = useState(false);
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [query, setQuery] = useState("");
+
+  const isLoggedIn = Boolean(token && (currentUser || currentRole));
 
   const closeMenus = () => {
     setOpen(false);
-    setCategoriesOpen(false);
   };
 
   const handleSearchSubmit = (e: React.FormEvent | React.KeyboardEvent) => {
@@ -41,7 +45,7 @@ export const Header: React.FC = () => {
     <header className="site-header">
       {/* Brand Logo */}
       <Link to="/" className="logo" onClick={closeMenus}>
-        <img src="/localcart-logo.svg" alt="LocalCart logo" />
+        <div className="logo-mark">LC</div>
         <div>
           <b>LocalCart</b>
           <small>Hyperlocal Marketplace</small>
@@ -57,50 +61,18 @@ export const Header: React.FC = () => {
           className={location.pathname.startsWith("/products") ? "active" : ""}
           to="/products"
         >
-          Discover
+          Products
         </Link>
 
-        {/* Categories Dropdown */}
-        <div className="nav-category">
-          <button
-            type="button"
-            className={`nav-category-button ${categoriesOpen ? "open" : ""}`}
-            onClick={() => setCategoriesOpen(!categoriesOpen)}
-            aria-expanded={categoriesOpen}
-          >
-            Categories <span>⌄</span>
-          </button>
-
-          {categoriesOpen && (
-            <div
-              className="category-menu"
-              onMouseLeave={() => setCategoriesOpen(false)}
-            >
-              {CATEGORIES.map((category) => (
-                <Link
-                  to={`/products?category=${category.label}`}
-                  onClick={closeMenus}
-                  key={category.label}
-                >
-                  <span>{category.icon}</span>
-                  <div>
-                    <b>{category.label}</b>
-                    <small>Shop nearby</small>
-                  </div>
-                </Link>
-              ))}
-              <Link className="menu-all" to="/products" onClick={closeMenus}>
-                <span>View all categories</span>
-                <ArrowRight size={14} />
-              </Link>
-            </div>
-          )}
-        </div>
-
-        <a href="/#how-it-works">How it works</a>
+        <Link
+          className={location.pathname === "/how-it-works" ? "active" : ""}
+          to="/how-it-works"
+        >
+          How it works
+        </Link>
       </nav>
 
-      {/* Header Actions: Search, Theme Toggle, Customer, Bag, Mobile Toggle */}
+      {/* Header Actions: Search, Theme Toggle, Auth Buttons / User Card, Cart Bag, Mobile Toggle */}
       <div className="header-actions">
         <form className="search-mini" onSubmit={handleSearchSubmit}>
           <Search size={16} />
@@ -123,26 +95,6 @@ export const Header: React.FC = () => {
           {darkMode ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
-        {/* Vendor Quick Link */}
-        <Link
-          to="/vendor"
-          className="icon-btn hidden md:grid"
-          title="Vendor Studio"
-          aria-label="Vendor Studio"
-        >
-          <Store size={18} />
-        </Link>
-
-        {/* Customer Account */}
-        <Link
-          to="/customer"
-          className="icon-btn account-link"
-          title="Customer Account"
-          aria-label="Customer Account"
-        >
-          <UserRound size={19} />
-        </Link>
-
         {/* Cart Bag */}
         <Link
           className="bag-btn"
@@ -153,6 +105,52 @@ export const Header: React.FC = () => {
           <span>{itemCount}</span>
         </Link>
 
+        {/* Authentication: When logged out -> Single Sign In pill; When logged in -> User Card pill & Logout */}
+        {!isLoggedIn ? (
+          <Link to="/signin" className="nav-auth-pill nav-auth-pill-outline">
+            Sign In
+          </Link>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            {currentRole === "admin" ? (
+              <Link
+                to="/admin"
+                className="nav-user-pill"
+                title="Admin Dashboard"
+              >
+                <LayoutGrid size={15} />
+                <span>Admin Dashboard</span>
+              </Link>
+            ) : currentRole === "vendor" ? (
+              <Link
+                to="/vendor"
+                className="nav-user-pill"
+                title="Vendor Studio"
+              >
+                <Store size={15} />
+                <span>{currentUser?.shopName || "Vendor Studio"}</span>
+              </Link>
+            ) : (
+              <Link to="/customer" className="nav-user-pill" title="My Account">
+                <UserRound size={15} />
+                <span>
+                  {currentUser?.fullName?.split(" ")[0] || "My Account"}
+                </span>
+              </Link>
+            )}
+
+            <button
+              type="button"
+              onClick={logout}
+              className="icon-btn"
+              title="Sign out"
+              aria-label="Sign out"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        )}
+
         {/* Mobile Hamburger Toggle */}
         <button
           type="button"
@@ -160,7 +158,7 @@ export const Header: React.FC = () => {
           onClick={() => setOpen(!open)}
           aria-label="Toggle navigation menu"
         >
-          {open ? <X size={20} /> : <span>☰</span>}
+          {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
@@ -171,7 +169,10 @@ export const Header: React.FC = () => {
             Home
           </Link>
           <Link to="/products" onClick={closeMenus}>
-            Discover Catalog
+            Products
+          </Link>
+          <Link to="/how-it-works" onClick={closeMenus}>
+            How it works
           </Link>
           <button
             type="button"
@@ -182,36 +183,84 @@ export const Header: React.FC = () => {
             <span>{darkMode ? "Light mode" : "Dark mode"}</span>
           </button>
 
-          <div className="border-t border-slate-200 dark:border-slate-700 pt-2">
-            <span className="text-xs uppercase font-bold text-orange-600 dark:text-orange-400">
-              Browse Categories
-            </span>
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              {CATEGORIES.map((category) => (
+          {/* Auth section for mobile */}
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
+            {!isLoggedIn ? (
+              <Link
+                to="/signin"
+                onClick={closeMenus}
+                className="nav-auth-pill nav-auth-pill-outline justify-center text-center w-full flex items-center"
+              >
+                Sign In
+              </Link>
+            ) : (
+              <div className="flex items-center justify-between p-2 rounded-xl bg-slate-100 dark:bg-slate-800">
                 <Link
-                  to={`/products?category=${category.label}`}
+                  to={
+                    currentRole === "admin"
+                      ? "/admin"
+                      : currentRole === "vendor"
+                        ? "/vendor"
+                        : "/customer"
+                  }
                   onClick={closeMenus}
-                  key={category.label}
-                  className="flex items-center gap-2 py-1 text-sm"
+                  className="flex items-center gap-2 font-bold text-sm"
                 >
-                  <span>{category.icon}</span> {category.label}
+                  {currentRole === "admin" ? (
+                    <LayoutGrid size={16} className="text-orange-600" />
+                  ) : currentRole === "vendor" ? (
+                    <Store size={16} className="text-orange-600" />
+                  ) : (
+                    <UserRound size={16} className="text-orange-600" />
+                  )}
+                  <span>
+                    {currentRole === "admin"
+                      ? "Admin Dashboard"
+                      : currentRole === "vendor"
+                        ? currentUser?.shopName || "Vendor Studio"
+                        : currentUser?.fullName || "My Account"}
+                  </span>
                 </Link>
-              ))}
-            </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    closeMenus();
+                  }}
+                  className="text-xs text-red-500 font-semibold hover:underline"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-2 flex flex-col gap-2">
             <span className="text-xs uppercase font-bold text-orange-600 dark:text-orange-400">
               Portals
             </span>
-            <Link to="/customer" onClick={closeMenus}>
-              👤 Customer Account
+            <Link
+              to="/customer"
+              onClick={closeMenus}
+              className="flex items-center gap-2 py-1"
+            >
+              <UserRound size={16} className="text-orange-600" /> Customer
+              Account
             </Link>
-            <Link to="/vendor" onClick={closeMenus}>
-              🏪 Vendor Studio
+            <Link
+              to="/vendor"
+              onClick={closeMenus}
+              className="flex items-center gap-2 py-1"
+            >
+              <Store size={16} className="text-orange-600" /> Vendor Studio
             </Link>
-            <Link to="/admin" onClick={closeMenus}>
-              🛡️ Admin Overview
+            <Link
+              to="/admin"
+              onClick={closeMenus}
+              className="flex items-center gap-2 py-1"
+            >
+              <ShieldCheck size={16} className="text-orange-600" /> Admin
+              Overview
             </Link>
           </div>
         </div>

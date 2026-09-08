@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart3,
   Check,
@@ -11,73 +11,145 @@ import {
 } from "lucide-react";
 import { PanelShell } from "../components/layout/PanelShell";
 import { MetricCard } from "../components/common/MetricCard";
+import { CustomSelect } from "../components/common/CustomSelect";
 import { useProducts } from "../context/ProductContext";
 import { useOrders } from "../context/OrderContext";
+import { useAuth } from "../context/AuthContext";
 import { money } from "../utils/formatters";
-import { Category, Product } from "../types";
-import { CATEGORIES } from "../data/mockData";
+import {
+  CreateProductDto,
+  Order,
+  mapBackendOrderToFrontend,
+  mapBackendProductToFrontend,
+} from "../types";
+import { orderApi } from "../services/orderApi";
+import { productApi } from "../services/productApi";
 
 export const VendorDashboardPage: React.FC = () => {
-  const { catalog, addProduct } = useProducts();
-  const { orders } = useOrders();
+  const { catalog, categories, addProduct } = useProducts();
+  const { orders: localOrders, updateOrder } = useOrders();
+  const { currentUser, token } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"catalog" | "orders">("catalog");
   const [message, setMessage] = useState("");
-  const [storeName, setStoreName] = useState(
-    () => localStorage.getItem("localcart-store-name") ?? "Prime Electronics",
-  );
+  const [vendorOrders, setVendorOrders] = useState<Order[]>(localOrders);
+  const [vendorProducts, setVendorProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 
-  const vendorProducts = catalog.filter(
-    (p) => !p.vendor || p.vendor.toLowerCase() === storeName.toLowerCase(),
-  );
-  const displayProducts = vendorProducts.length > 0 ? vendorProducts : catalog;
-
-  const handleAddStock = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const price = Number(data.get("price"));
-    const category = (data.get("category") as Category) || "Home";
-    const imageFile = data.get("imageFile");
-    const imageUrl = String(data.get("image") || "");
-
-    const saveProduct = (image?: string) => {
-      const name = String(data.get("name"));
-      const newProduct: Product = {
-        id: Date.now(),
-        name,
-        category,
-        vendor: storeName,
-        vendorPhone: String(data.get("vendorPhone") || ""),
-        price,
-        oldPrice: price * 1.2,
-        rating: 5.0,
-        distance: "0.4 km",
-        color: "#e2e8f0",
-        accent: "#1e293b",
-        tag: "Store Fresh",
-        image: image || imageUrl || undefined,
-        stock: Number(data.get("quantity")),
-      };
-
-      addProduct(newProduct);
-      setMessage(`"${name}" is now live in the neighborhood catalog!`);
-      window.setTimeout(() => setMessage(""), 3000);
-    };
-
-    if (imageFile instanceof File && imageFile.size > 0) {
-      const reader = new FileReader();
-      reader.onload = () => saveProduct(String(reader.result));
-      reader.readAsDataURL(imageFile);
-    } else {
-      saveProduct();
+  useEffect(() => {
+    if (categories.length > 0 && !selectedCategoryId) {
+      setSelectedCategoryId(String(categories[0].productCategoryId));
     }
+  }, [categories, selectedCategoryId]);
 
-    event.currentTarget.reset();
+  const storeName =
+    currentUser?.shopName ||
+    localStorage.getItem("localcart-store-name") ||
+    "Prime Electronics";
+
+  const fetchVendorData = async () => {
+    if (!token) return;
+    try {
+      setLoading(true);
+      const [apiOrders, apiProducts] = await Promise.allSettled([
+        orderApi.getMyVendorOrders(),
+        productApi.getMyProducts(),
+      ]);
+
+      if (apiOrders.status === "fulfilled" && apiOrders.value.length >= 0) {
+        setVendorOrders(apiOrders.value.map(mapBackendOrderToFrontend));
+      }
+      if (apiProducts.status === "fulfilled" && apiProducts.value.length >= 0) {
+        setVendorProducts(apiProducts.value.map(mapBackendProductToFrontend));
+      }
+    } catch (err) {
+      console.warn("Could not fetch vendor data from backend:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleStoreNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStoreName(e.target.value);
-    localStorage.setItem("localcart-store-name", e.target.value);
+  useEffect(() => {
+    fetchVendorData();
+  }, [token]);
+
+  const displayProducts =
+    vendorProducts.length > 0
+      ? vendorProducts
+      : catalog.filter(
+          (p) =>
+            !p.vendor || p.vendor.toLowerCase() === storeName.toLowerCase(),
+        );
+
+  const handleUpdateStatus = async (order: Order, newStatus: string) => {
+    if (order.orderId) {
+      try {
+        const updated = await orderApi.updateOrderStatus(
+          order.orderId,
+          newStatus,
+        );
+        const mapped = mapBackendOrderToFrontend(updated);
+        setVendorOrders((prev) =>
+          prev.map((o) => (o.orderId === order.orderId ? mapped : o)),
+        );
+        if (updateOrder) {
+          updateOrder(mapped);
+        }
+        setMessage(
+          `Order ${order.orderNumber} status updated to ${newStatus}!`,
+        );
+        window.setTimeout(() => setMessage(""), 3000);
+        return;
+      } catch (err: any) {
+        console.warn("Failed to update status on backend:", err);
+      }
+    }
+    // Local fallback
+    const fallbackUpdated = { ...order, status: newStatus };
+    setVendorOrders((prev) =>
+      prev.map((o) =>
+        o.orderNumber === order.orderNumber ? fallbackUpdated : o,
+      ),
+    );
+    if (updateOrder) {
+      updateOrder(fallbackUpdated);
+    }
+    setMessage(`Order ${order.orderNumber} marked as ${newStatus}!`);
+    window.setTimeout(() => setMessage(""), 3000);
+  };
+
+  const handleAddStock = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const price = Number(data.get("price"));
+    const categoryId =
+      Number(data.get("categoryId")) ||
+      (categories[0]?.productCategoryId ?? 13);
+    const name = String(data.get("name"));
+    const quantity = Number(data.get("quantity"));
+    const imageUrl = String(data.get("image") || "");
+
+    const dto: CreateProductDto = {
+      productCategoryId: categoryId,
+      name,
+      price,
+      stockQuantity: quantity,
+      unit: "1 piece",
+      description: `Supplied by ${storeName}`,
+      imageUrls: imageUrl ? [imageUrl] : undefined,
+    };
+
+    try {
+      const created = await addProduct(dto);
+      setVendorProducts((prev) => [created, ...prev]);
+      setMessage(`"${name}" is now live in the neighborhood catalog!`);
+      form.reset();
+      window.setTimeout(() => setMessage(""), 3000);
+    } catch (err: any) {
+      setMessage(`Failed to add product: ${err.message}`);
+    }
   };
 
   return (
@@ -103,7 +175,7 @@ export const VendorDashboardPage: React.FC = () => {
         <MetricCard
           icon={<ShoppingBag size={20} />}
           label="Customer Orders"
-          value={String(orders.length)}
+          value={String(vendorOrders.length)}
           detail="Fulfilled or In-Progress"
         />
         <MetricCard
@@ -115,14 +187,21 @@ export const VendorDashboardPage: React.FC = () => {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex gap-4 border-b border-slate-200 dark:border-slate-700 mb-6 pb-2">
+      <div
+        className="flex gap-4 mb-6 pb-2"
+        style={{ borderBottom: "1px solid var(--line)" }}
+      >
         <button
           type="button"
-          className={`pb-2 text-sm font-bold flex items-center gap-2 transition-colors ${
-            activeTab === "catalog"
-              ? "text-orange-600 border-b-2 border-orange-600 -mb-2.5"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
-          }`}
+          className="pb-2 text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer"
+          style={{
+            color: activeTab === "catalog" ? "var(--rust)" : "var(--muted)",
+            borderBottom:
+              activeTab === "catalog"
+                ? "2px solid var(--rust)"
+                : "2px solid transparent",
+            marginBottom: "-2.5px",
+          }}
           onClick={() => setActiveTab("catalog")}
         >
           <Package size={16} /> Store Inventory ({displayProducts.length})
@@ -130,15 +209,28 @@ export const VendorDashboardPage: React.FC = () => {
 
         <button
           type="button"
-          className={`pb-2 text-sm font-bold flex items-center gap-2 transition-colors ${
-            activeTab === "orders"
-              ? "text-orange-600 border-b-2 border-orange-600 -mb-2.5"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
-          }`}
+          className="pb-2 text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer"
+          style={{
+            color: activeTab === "orders" ? "var(--rust)" : "var(--muted)",
+            borderBottom:
+              activeTab === "orders"
+                ? "2px solid var(--rust)"
+                : "2px solid transparent",
+            marginBottom: "-2.5px",
+          }}
           onClick={() => setActiveTab("orders")}
         >
-          <Clock size={16} /> Incoming Orders ({orders.length})
+          <Clock size={16} /> Incoming Orders ({vendorOrders.length})
         </button>
+
+        {loading && (
+          <span
+            className="text-xs font-semibold animate-pulse self-center ml-auto"
+            style={{ color: "var(--rust)" }}
+          >
+            Syncing with server...
+          </span>
+        )}
       </div>
 
       <div className="panel-grid">
@@ -187,58 +279,102 @@ export const VendorDashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              {orders.length > 0 ? (
+              {vendorOrders.length > 0 ? (
                 <div className="space-y-4">
-                  {orders.map((order) => (
+                  {vendorOrders.map((order) => (
                     <div
                       key={order.orderNumber}
-                      className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                      className="p-5"
+                      style={{
+                        background: "var(--paper)",
+                        border: "1px solid var(--line)",
+                        borderRadius: "16px",
+                      }}
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <b className="text-sm">{order.orderNumber}</b>
-                          <small className="block text-slate-500 text-xs mt-0.5">
+                          <b
+                            className="text-sm"
+                            style={{ color: "var(--ink)" }}
+                          >
+                            {order.orderNumber}
+                          </b>
+                          <small
+                            className="block text-xs mt-0.5"
+                            style={{ color: "var(--muted)" }}
+                          >
                             Customer: {order.customer.name} (
                             {order.customer.phone})
                           </small>
-                          <small className="block text-slate-400 text-xs">
-                            Address: {order.customer.address}
+                          <small
+                            className="block text-xs"
+                            style={{ color: "var(--muted)" }}
+                          >
+                            Address: {order.customer.address || "Store Pickup"}
                           </small>
                         </div>
                         <div className="text-right">
-                          <strong className="text-base text-orange-600 block">
+                          <strong
+                            className="text-base block"
+                            style={{ color: "var(--rust)" }}
+                          >
                             {money(order.total)}
                           </strong>
-                          <span className="status-pill text-[10px] inline-block mt-1">
+                          <span
+                            className={`status-pill text-[10px] inline-block mt-1 ${
+                              (order.status || "").toLowerCase() === "pending"
+                                ? "pending"
+                                : "delivered"
+                            }`}
+                          >
                             {order.status || "Pending"}
                           </span>
                         </div>
                       </div>
 
-                      <div className="text-xs text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-700 pt-2 mb-3">
-                        <b>Items Ordered:</b>
+                      <div
+                        className="text-xs pt-2 mb-3"
+                        style={{
+                          borderTop: "1px solid var(--line)",
+                          color: "var(--muted)",
+                        }}
+                      >
+                        <b style={{ color: "var(--ink)" }}>Items Ordered:</b>
                         <ul className="list-disc list-inside mt-1 space-y-0.5">
                           {order.items.map((i) => (
-                            <li key={i.id}>
-                              {i.name} × {i.quantity} (
-                              {money(i.price * i.quantity)})
+                            <li key={i.id} style={{ color: "var(--muted)" }}>
+                              <span style={{ color: "var(--ink)" }}>
+                                {i.name}
+                              </span>{" "}
+                              × {i.quantity} ({money(i.price * i.quantity)})
                             </li>
                           ))}
                         </ul>
                       </div>
 
-                      <div className="flex gap-2 justify-end border-t border-slate-100 dark:border-slate-700 pt-3">
-                        <button
-                          type="button"
-                          className="btn btn-dark py-1.5 px-3 text-xs"
-                          onClick={() =>
-                            alert(
-                              `Order ${order.orderNumber} marked as Ready for Pickup!`,
-                            )
-                          }
-                        >
-                          <CheckCircle2 size={13} /> Mark Ready
-                        </button>
+                      <div
+                        className="flex gap-2 justify-end pt-3"
+                        style={{ borderTop: "1px solid var(--line)" }}
+                      >
+                        {order.status !== "Completed" && (
+                          <button
+                            type="button"
+                            className="btn btn-dark py-1.5 px-3 text-xs"
+                            onClick={() =>
+                              handleUpdateStatus(
+                                order,
+                                order.status === "ReadyForPickup"
+                                  ? "Completed"
+                                  : "ReadyForPickup",
+                              )
+                            }
+                          >
+                            <CheckCircle2 size={13} />
+                            {order.status === "ReadyForPickup"
+                              ? "Mark Delivered"
+                              : "Mark Ready"}
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -266,35 +402,34 @@ export const VendorDashboardPage: React.FC = () => {
               Store name
               <input
                 value={storeName}
-                onChange={handleStoreNameChange}
-                placeholder="Store name"
-                required
-              />
-            </label>
-
-            <label>
-              Store WhatsApp / Phone
-              <input
-                name="vendorPhone"
-                type="tel"
-                placeholder="+91 98765 43210"
-                required
+                readOnly
+                className="opacity-80 cursor-not-allowed"
               />
             </label>
 
             <label>
               Category
-              <select
-                name="category"
-                defaultValue="Electronics"
-                className="w-full mt-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 outline-none"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.label} value={c.label}>
-                    {c.icon} {c.label}
-                  </option>
-                ))}
-              </select>
+              <input
+                type="hidden"
+                name="categoryId"
+                value={selectedCategoryId}
+              />
+              <div className="mt-2">
+                <CustomSelect
+                  options={
+                    categories.length > 0
+                      ? categories.map((c) => ({
+                          value: String(c.productCategoryId),
+                          label: c.categoryName,
+                        }))
+                      : [{ value: "13", label: "Gaming Accessories" }]
+                  }
+                  value={selectedCategoryId}
+                  onChange={(val) => setSelectedCategoryId(val)}
+                  ariaLabel="Select product category"
+                  className="w-full"
+                />
+              </div>
             </label>
 
             <label>
@@ -344,13 +479,20 @@ export const VendorDashboardPage: React.FC = () => {
               <input name="imageFile" type="file" accept="image/*" />
             </label>
 
-            <button type="submit" className="btn btn-dark full mt-4">
+            <button type="submit" className="btn btn-rust full mt-4">
               <Plus size={16} /> Publish to Catalog
             </button>
           </form>
 
           {message && (
-            <div className="form-message mt-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl text-emerald-700 dark:text-emerald-300">
+            <div
+              className="form-message mt-4 p-3 rounded-xl flex items-center gap-2 text-xs font-bold"
+              style={{
+                background: "var(--green-light)",
+                border: "1px solid rgba(26, 107, 67, 0.2)",
+                color: "var(--green)",
+              }}
+            >
               <Check size={16} /> {message}
             </div>
           )}

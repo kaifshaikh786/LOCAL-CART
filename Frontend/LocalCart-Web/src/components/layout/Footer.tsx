@@ -8,19 +8,23 @@ export const Footer: React.FC = () => {
       {/* Brand & Mission */}
       <div className="footer-brand">
         <div className="flex items-center gap-3">
-          <img src="/localcart-logo.svg" alt="LocalCart" />
-          <b>LocalCart</b>
+          <div className="logo-mark">LC</div>
+          <b style={{ color: "var(--ink)" }}>LocalCart</b>
         </div>
-        <p>
+        <p style={{ color: "var(--muted)" }}>
           Good things are closer than you think. Bringing verified neighbourhood
           shops directly to your doorstep.
         </p>
-        <div className="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
+        <div
+          className="flex flex-wrap gap-4 mt-2 text-xs"
+          style={{ color: "var(--muted)" }}
+        >
           <span className="flex items-center gap-1.5">
-            <Truck size={14} className="text-emerald-600" /> Same-day delivery
+            <Truck size={14} style={{ color: "var(--green)" }} /> Same-day
+            delivery
           </span>
           <span className="flex items-center gap-1.5">
-            <ShieldCheck size={14} className="text-orange-600" /> Verified
+            <ShieldCheck size={14} style={{ color: "var(--rust)" }} /> Verified
             stores
           </span>
         </div>
@@ -55,15 +59,28 @@ export const Footer: React.FC = () => {
       {/* Community & Sellers */}
       <div>
         <b>For Local Sellers</b>
-        <a href="#how-it-works">How LocalCart Works</a>
-        <Link to="/signin?role=vendor">Register Your Shop</Link>
+        <Link to="/how-it-works">How LocalCart Works</Link>
+        <Link to="/signup">Register Your Shop</Link>
         <a href="mailto:partners@localcart.in">Seller Partnerships</a>
         <a href="mailto:support@localcart.in">Merchant Support</a>
-        <div className="mt-4 p-3 rounded-xl bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800/40 text-xs">
-          <span className="font-bold text-orange-700 dark:text-orange-400 flex items-center gap-1">
+        <div
+          className="mt-4 p-3.5 text-xs"
+          style={{
+            background: "var(--rust-light)",
+            border: "1px solid rgba(212, 98, 42, 0.2)",
+            borderRadius: "14px",
+          }}
+        >
+          <span
+            className="font-bold flex items-center gap-1"
+            style={{ color: "var(--rust)" }}
+          >
             <Sparkles size={13} /> Grow with LocalCart
           </span>
-          <p className="text-slate-600 dark:text-slate-400 mt-1 text-[11px] leading-tight">
+          <p
+            className="mt-1 text-[11px] leading-tight"
+            style={{ color: "var(--muted)" }}
+          >
             Reach thousands of buyers right in your pincode area.
           </p>
         </div>
@@ -72,16 +89,21 @@ export const Footer: React.FC = () => {
       {/* Bottom Copyright & Badges */}
       <div className="copyright">
         <div>© 2026 LocalCart Technologies Inc. All rights reserved.</div>
-        <div className="flex items-center gap-6 text-xs text-slate-500">
+        <div
+          className="flex items-center gap-6 text-xs"
+          style={{ color: "var(--muted)" }}
+        >
           <a
             href="#terms"
-            className="hover:text-slate-800 dark:hover:text-slate-200"
+            className="hover:underline"
+            style={{ color: "var(--muted)" }}
           >
             Terms of Service
           </a>
           <a
             href="#privacy"
-            className="hover:text-slate-800 dark:hover:text-slate-200"
+            className="hover:underline"
+            style={{ color: "var(--muted)" }}
           >
             Privacy Policy
           </a>

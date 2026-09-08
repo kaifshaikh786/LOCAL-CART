@@ -18,12 +18,12 @@ export const CartPage: React.FC = () => {
   const activeVendor = cart.length > 0 ? cart[0].vendor : null;
 
   return (
-    <main className="page cart-page">
+    <main className="page cart-page" style={{ background: "var(--cream)" }}>
       <div className="flex justify-between items-end flex-wrap gap-4 mb-8">
         <div className="page-intro compact m-0">
           <span className="kicker">YOUR LOCAL SHOPPING BAG</span>
-          <h1>Ready when you are.</h1>
-          <p>
+          <h1 style={{ color: "var(--ink)" }}>Ready when you are.</h1>
+          <p style={{ color: "var(--muted)" }}>
             {cart.length
               ? `${cart.length} local ${cart.length === 1 ? "item" : "items"} ready for checkout.`
               : "Your bag is waiting for a good find."}
@@ -34,7 +34,12 @@ export const CartPage: React.FC = () => {
           <button
             type="button"
             onClick={clearCart}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-red-600 transition-colors py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-800"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-lg border transition-colors"
+            style={{
+              borderColor: "var(--line)",
+              color: "var(--muted)",
+              background: "var(--paper)",
+            }}
           >
             <Trash2 size={14} /> Clear entire bag
           </button>
@@ -46,8 +51,15 @@ export const CartPage: React.FC = () => {
           <div className="flex flex-col gap-4">
             {/* Active Store Indicator */}
             {activeVendor && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/40 text-xs font-semibold text-orange-900 dark:text-orange-200">
-                <Store size={16} className="text-orange-600" />
+              <div
+                className="flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-semibold"
+                style={{
+                  background: "var(--rust-light)",
+                  border: "1px solid rgba(212, 98, 42, 0.2)",
+                  color: "var(--rust)",
+                }}
+              >
+                <Store size={16} style={{ color: "var(--rust)" }} />
                 <span>
                   Ordering from verified store: <b>{activeVendor}</b>
                 </span>
@@ -69,7 +81,8 @@ export const CartPage: React.FC = () => {
             <div className="pt-4">
               <Link
                 to="/products"
-                className="inline-flex items-center gap-2 text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline"
+                className="inline-flex items-center gap-2 text-xs font-bold hover:underline"
+                style={{ color: "var(--rust)" }}
               >
                 <ArrowLeft size={14} /> Continue shopping nearby
               </Link>
@@ -79,10 +92,18 @@ export const CartPage: React.FC = () => {
           <OrderSummary subtotal={subtotal} />
         </div>
       ) : (
-        <div className="empty-state">
-          <ShoppingBag size={48} />
-          <h2>Your bag is empty</h2>
-          <p>
+        <div
+          className="empty-state"
+          style={{
+            textAlign: "center",
+            border: "2px dashed var(--line)",
+            borderRadius: "24px",
+            padding: "96px 24px",
+          }}
+        >
+          <ShoppingBag size={48} style={{ color: "var(--rust)" }} />
+          <h2 style={{ color: "var(--ink)" }}>Your bag is empty</h2>
+          <p style={{ color: "var(--muted)" }}>
             Explore nearby stores and find daily essentials, tech, fashion, and
             home goods.
           </p>

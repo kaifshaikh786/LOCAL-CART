@@ -1,12 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
+  Apple,
   ArrowRight,
+  BadgeCheck,
   CheckCircle2,
+  Coffee,
+  Handshake,
+  Headphones,
   ShieldCheck,
+  ShoppingBag,
   Sparkles,
   Store,
   Truck,
+  Zap,
 } from "lucide-react";
 import { LocationBar } from "../components/common/LocationBar";
 import { ProductGrid } from "../components/product/ProductGrid";
@@ -45,10 +52,7 @@ export const HomePage: React.FC = () => {
             <Link className="btn btn-dark" to="/products">
               Start exploring <ArrowRight size={17} />
             </Link>
-            <Link
-              className="btn btn-outline border-slate-600 text-slate-200 hover:bg-slate-800"
-              to="/signin?role=vendor"
-            >
+            <Link className="btn btn-outline" to="/signup">
               <Store size={16} /> Sell locally
             </Link>
             <span className="delivery-note">
@@ -60,68 +64,144 @@ export const HomePage: React.FC = () => {
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-6 mt-8 pt-6 border-t border-slate-800/80 text-xs text-slate-400">
+          <div className="flex flex-wrap items-center gap-6 mt-8 pt-6 border-t border-[var(--line)] text-xs text-[var(--muted)]">
             <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 size={15} className="text-emerald-400" /> Real-time
-              Store Stock
+              <CheckCircle2 size={15} style={{ color: "var(--green)" }} />{" "}
+              Real-time Store Stock
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck size={15} className="text-orange-400" /> 100%
+              <ShieldCheck size={15} style={{ color: "var(--rust)" }} /> 100%
               Verified Local Sellers
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Sparkles size={15} className="text-amber-400" /> Single-Vendor
-              Fresh Checkout
+              <Sparkles size={15} style={{ color: "var(--gold)" }} />{" "}
+              Single-Vendor Fresh Checkout
             </span>
           </div>
         </div>
 
-        {/* Hero Art Visual (Right Side) */}
-        <div className="hero-art">
-          <div className="sun" />
-          <div className="art-label">
-            THIS WEEK'S
-            <br />
-            <b>LOCAL EDIT</b>
+        {/* Right Column: Luxury Merchant Showcase Card */}
+        <div className="hero-showcase">
+          <div>
+            <div className="showcase-header">
+              <span className="showcase-badge">
+                <Sparkles size={13} /> Curated Merchant Spotlight
+              </span>
+              <span className="showcase-rating">
+                ★ 4.9 ·{" "}
+                <span className="font-normal text-stone-300">142 reviews</span>
+              </span>
+            </div>
+
+            <div className="showcase-merchant">
+              <h3>Prime Provisions & Electronics</h3>
+              <p>Verified Merchant · 0.8 km away · MG Road Bazaar</p>
+            </div>
+
+            <div className="showcase-items">
+              <div className="showcase-item">
+                <div className="showcase-item-info">
+                  <div className="showcase-item-icon">
+                    <Headphones size={18} />
+                  </div>
+                  <div>
+                    <div className="showcase-item-name">Sony WH-1000XM5</div>
+                    <div className="showcase-item-sub">
+                      Noise Cancelling · In Local Stock
+                    </div>
+                  </div>
+                </div>
+                <div className="showcase-item-price">₹28,990</div>
+              </div>
+
+              <div className="showcase-item">
+                <div className="showcase-item-info">
+                  <div className="showcase-item-icon">
+                    <Apple size={18} />
+                  </div>
+                  <div>
+                    <div className="showcase-item-name">
+                      Organic Royal Delicious
+                    </div>
+                    <div className="showcase-item-sub">
+                      Kashmir Orchards · 1 kg
+                    </div>
+                  </div>
+                </div>
+                <div className="showcase-item-price">₹180</div>
+              </div>
+
+              <div className="showcase-item">
+                <div className="showcase-item-info">
+                  <div className="showcase-item-icon">
+                    <Coffee size={18} />
+                  </div>
+                  <div>
+                    <div className="showcase-item-name">
+                      Single Estate Darjeeling
+                    </div>
+                    <div className="showcase-item-sub">
+                      Spring Flush Tea · 250g
+                    </div>
+                  </div>
+                </div>
+                <div className="showcase-item-price">₹420</div>
+              </div>
+            </div>
           </div>
 
-          <div className="art-product product-watch" title="Electronics">
-            ◒
-          </div>
-          <div className="art-product product-bag" title="Everyday Goods">
-            ⌁
-          </div>
-          <div className="art-product product-flower" title="Fresh Picks">
-            ✿
-          </div>
-
-          <div className="art-caption">
-            Curated close to home <ArrowRight size={15} />
+          <div className="showcase-footer">
+            <span className="showcase-status">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              Open Now · Same-Day Local Delivery
+            </span>
+            <Link
+              to="/products"
+              className="text-xs text-amber-300 hover:text-amber-200 inline-flex items-center gap-1 font-semibold"
+            >
+              Browse Shop <ArrowRight size={13} />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Quick Value Strip (Full Width) */}
+      {/* Quick Value Strip (Luxury Cards) */}
       <section className="quick-strip">
-        <div>
-          <span className="quick-emoji">🛍️</span>
-          <b>Shop 100% Local</b>
-          <small>Handpicked from stores near you</small>
+        <div className="quick-strip-card">
+          <div className="quick-strip-icon">
+            <Store size={20} />
+          </div>
+          <div className="quick-strip-text">
+            <b>100% Local Merchants</b>
+            <small>Handpicked stores in your postal area</small>
+          </div>
         </div>
-        <div>
-          <span className="quick-emoji">⚡</span>
-          <b>Express Delivery</b>
-          <small>Same-day dispatch in your area</small>
+        <div className="quick-strip-card">
+          <div className="quick-strip-icon">
+            <Zap size={20} />
+          </div>
+          <div className="quick-strip-text">
+            <b>Express Delivery</b>
+            <small>Doorstep dispatch in 2–4 hours</small>
+          </div>
         </div>
-        <div>
-          <span className="quick-emoji">🤝</span>
-          <b>Real Neighbourhood Sellers</b>
-          <small>Real shopkeepers behind every order</small>
+        <div className="quick-strip-card">
+          <div className="quick-strip-icon">
+            <Handshake size={20} />
+          </div>
+          <div className="quick-strip-text">
+            <b>Fair Local Prices</b>
+            <small>Zero marked-up platform fees</small>
+          </div>
         </div>
-        <div>
-          <span className="quick-emoji">💛</span>
-          <b>Keep Wealth Local</b>
-          <small>Your spend supports local businesses</small>
+        <div className="quick-strip-card">
+          <div className="quick-strip-icon">
+            <BadgeCheck size={20} />
+          </div>
+          <div className="quick-strip-text">
+            <b>Verified Authentic</b>
+            <small>Genuine neighborhood shopkeepers</small>
+          </div>
         </div>
       </section>
 
@@ -144,7 +224,9 @@ export const HomePage: React.FC = () => {
               className="category-item"
               key={category.label}
             >
-              <span>{category.icon}</span>
+              <div className="category-icon">
+                <ShoppingBag size={22} />
+              </div>
               <b>{category.label}</b>
               <small>
                 Explore items <ArrowRight size={12} />
@@ -209,18 +291,18 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Merchant Spotlight Call-to-Action */}
-      <section className="w-full px-4 sm:px-8 lg:px-16 py-16 bg-slate-100 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800">
+      <section className="w-full px-4 sm:px-8 lg:px-16 py-20 bg-[var(--paper)] border-t border-[var(--line)]">
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
           <span className="kicker">FOR SHOP OWNERS</span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-3 text-slate-900 dark:text-slate-100">
+          <h2 className="heading-serif text-3xl sm:text-4xl font-bold tracking-tight mt-3 text-[var(--ink)]">
             Do you own a store in the neighborhood?
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-3 text-base max-w-xl">
+          <p className="text-[var(--muted)] mt-3 text-base max-w-xl leading-relaxed">
             List your inventory, manage customer orders in real time, and
             connect with buyers right across your street. Zero setup fees.
           </p>
           <div className="flex items-center gap-4 mt-8 flex-wrap justify-center">
-            <Link to="/signin?role=vendor" className="btn btn-dark">
+            <Link to="/signup" className="btn btn-dark">
               Open Vendor Studio <ArrowRight size={16} />
             </Link>
             <Link to="/products" className="btn btn-outline">

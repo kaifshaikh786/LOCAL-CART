@@ -14,7 +14,7 @@ export const RequireAccess: React.FC<RequireAccessProps> = ({
   const { hasAccess } = useAuth();
 
   if (!hasAccess(role)) {
-    return <Navigate to={`/${role}/login`} replace />;
+    return <Navigate to={`/signin?role=${role}`} replace />;
   }
 
   return <>{children}</>;

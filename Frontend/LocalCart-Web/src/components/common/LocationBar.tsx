@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, ArrowRight } from "lucide-react";
 
-export const LocationBar: React.FC = () => {
+type LocationBarProps = {
+  compact?: boolean;
+};
+
+export const LocationBar: React.FC<LocationBarProps> = ({ compact = false }) => {
   const navigate = useNavigate();
   const [location, setLocation] = useState(
     localStorage.getItem("localcart-location") ?? "",
@@ -17,8 +21,8 @@ export const LocationBar: React.FC = () => {
   };
 
   return (
-    <form className="location-bar" onSubmit={saveLocation}>
-      <MapPin size={17} />
+    <form className={`location-bar ${compact ? "compact" : ""}`} onSubmit={saveLocation}>
+      <MapPin size={compact ? 15 : 17} />
       <input
         value={location}
         onChange={(event) => setLocation(event.target.value)}
@@ -26,7 +30,7 @@ export const LocationBar: React.FC = () => {
         aria-label="Area or pincode"
       />
       <button type="submit">
-        Find nearby <ArrowRight size={14} />
+        Find nearby <ArrowRight size={compact ? 12 : 14} />
       </button>
     </form>
   );

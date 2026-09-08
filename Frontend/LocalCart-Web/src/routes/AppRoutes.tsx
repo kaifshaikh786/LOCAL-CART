@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { HomePage } from "../pages/HomePage";
 import { ProductsPage } from "../pages/ProductsPage";
 import { ProductDetailPage } from "../pages/ProductDetailPage";
@@ -7,10 +7,25 @@ import { CartPage } from "../pages/CartPage";
 import { CheckoutPage } from "../pages/CheckoutPage";
 import { OrderConfirmedPage } from "../pages/OrderConfirmedPage";
 import { LoginPage } from "../pages/LoginPage";
+import { SignUpPage } from "../pages/SignUpPage";
 import { CustomerDashboardPage } from "../pages/CustomerDashboardPage";
 import { VendorDashboardPage } from "../pages/VendorDashboardPage";
 import { AdminDashboardPage } from "../pages/AdminDashboardPage";
+import { HowItWorksPage } from "../pages/HowItWorksPage";
+import { NotFoundPage } from "../pages/NotFoundPage";
 import { RequireAccess } from "../components/auth/RequireAccess";
+
+const RedirectToSignin: React.FC<{ defaultRole?: string }> = ({
+  defaultRole,
+}) => {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  if (defaultRole && !params.get("role")) {
+    params.set("role", defaultRole);
+  }
+  const search = params.toString() ? `?${params.toString()}` : "";
+  return <Navigate to={`/signin${search}`} replace />;
+};
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -22,19 +37,29 @@ export const AppRoutes: React.FC = () => {
       <Route path="/cart" element={<CartPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/confirmed" element={<OrderConfirmedPage />} />
+      <Route path="/how-it-works" element={<HowItWorksPage />} />
 
       {/* Customer Account */}
       <Route path="/customer" element={<CustomerDashboardPage />} />
+      <Route path="/account" element={<Navigate to="/customer" replace />} />
 
       {/* Authentication */}
       <Route path="/signin" element={<LoginPage />} />
+      <Route path="/login" element={<RedirectToSignin />} />
+      <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/register" element={<SignUpPage />} />
       <Route
         path="/vendor/login"
-        element={<Navigate to="/signin?role=vendor" replace />}
+        element={<RedirectToSignin defaultRole="vendor" />}
       />
+      <Route path="/vendor/signup" element={<SignUpPage />} />
       <Route
         path="/admin/login"
-        element={<Navigate to="/signin?role=admin" replace />}
+        element={<RedirectToSignin defaultRole="admin" />}
+      />
+      <Route
+        path="/admin/signup"
+        element={<RedirectToSignin defaultRole="admin" />}
       />
 
       {/* Role-Protected Workspaces */}
@@ -81,13 +106,15 @@ export const AppRoutes: React.FC = () => {
         path="/customers/order-confirmation.html"
         element={<Navigate to="/confirmed" replace />}
       />
+      <Route path="/customers/login.html" element={<RedirectToSignin />} />
+      <Route path="/customers/signup.html" element={<RedirectToSignin />} />
       <Route
         path="/vendors/login.html"
-        element={<Navigate to="/signin?role=vendor" replace />}
+        element={<RedirectToSignin defaultRole="vendor" />}
       />
       <Route
         path="/vendors/signup.html"
-        element={<Navigate to="/signin?role=vendor" replace />}
+        element={<RedirectToSignin defaultRole="vendor" />}
       />
       <Route
         path="/vendors/dashboard.html"
@@ -99,7 +126,7 @@ export const AppRoutes: React.FC = () => {
       />
 
       {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };
