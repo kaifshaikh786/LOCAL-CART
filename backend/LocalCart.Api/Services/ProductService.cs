@@ -214,6 +214,9 @@ public class ProductService : IProductService
             ProductId = p.ProductId,
             VendorId = p.VendorId,
             VendorName = p.Vendor?.ShopName ?? string.Empty,
+            VendorAddress = p.Vendor?.Address ?? string.Empty,
+            VendorPhone = p.Vendor?.PhoneNumber ?? string.Empty,
+            VendorPincode = ExtractPincode(p.Vendor?.Address),
             ProductCategoryId = p.ProductCategoryId,
             CategoryName = p.ProductCategory?.CategoryName ?? string.Empty,
             Name = p.Name,
@@ -234,6 +237,14 @@ public class ProductService : IProductService
                     SortOrder = i.SortOrder
                 }).ToList() ?? new List<ProductImageDto>()
         };
+    }
+    
+    private static string ExtractPincode(string? address)
+    {
+        if (string.IsNullOrWhiteSpace(address)) return string.Empty;
+        
+        var match = System.Text.RegularExpressions.Regex.Match(address, @"\b\d{6}\b");
+        return match.Success ? match.Value : string.Empty;
     }
 }
 

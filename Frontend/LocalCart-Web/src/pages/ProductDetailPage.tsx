@@ -5,6 +5,7 @@ import {
   Check,
   Heart,
   MapPin,
+  Phone,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
@@ -202,8 +203,16 @@ export const ProductDetailPage: React.FC = () => {
               <b style={{ color: "var(--ink)" }}>{product.vendor}</b>
               <small style={{ color: "var(--muted)" }}>
                 <MapPin size={13} style={{ color: "var(--rust)" }} />{" "}
-                {product.distance} away · Ready in ~20 minutes
+                {product.vendorAddress || "Local store address unavailable"}
               </small>
+              {product.vendorPhone && (
+                <a
+                  href={`tel:${product.vendorPhone}`}
+                  style={{ color: "var(--rust)", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                >
+                  <Phone size={13} /> {product.vendorPhone}
+                </a>
+              )}
             </div>
             <span
               className="verified"

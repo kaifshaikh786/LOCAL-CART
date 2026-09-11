@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutGrid,
+  ChevronDown,
   LogOut,
   Menu,
   Moon,
@@ -16,6 +17,7 @@ import {
 import { useCart } from "../../context/CartContext";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
+import { useProducts } from "../../context/ProductContext";
 
 export const Header: React.FC = () => {
   const location = useLocation();
@@ -23,15 +25,26 @@ export const Header: React.FC = () => {
   const { itemCount } = useCart();
   const { darkMode, toggleTheme } = useTheme();
   const { currentUser, currentRole, token, logout } = useAuth();
+  const { categories, catalog } = useProducts();
 
   const [open, setOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
   const [query, setQuery] = useState("");
 
   const isLoggedIn = Boolean(token && (currentUser || currentRole));
 
   const closeMenus = () => {
     setOpen(false);
+    setCategoryOpen(false);
   };
+
+  const categoryNames = Array.from(
+    new Set(
+      categories.length > 0
+        ? categories.map((category) => category.categoryName)
+        : catalog.map((product) => product.category).filter(Boolean),
+    ),
+  );
 
   const handleSearchSubmit = (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
@@ -45,7 +58,11 @@ export const Header: React.FC = () => {
     <header className="site-header">
       {/* Brand Logo */}
       <Link to="/" className="logo" onClick={closeMenus}>
-        <div className="logo-mark">LC</div>
+        <img
+          className="brand-logo"
+          src="/localcart-logo.png"
+          alt="LocalCart cart logo"
+        />
         <div>
           <b>LocalCart</b>
           <small>Hyperlocal Marketplace</small>
@@ -63,6 +80,44 @@ export const Header: React.FC = () => {
         >
           Products
         </Link>
+
+        <div
+          className="nav-category"
+          onMouseEnter={() => setCategoryOpen(true)}
+          onMouseLeave={() => setCategoryOpen(false)}
+        >
+          <button
+            type="button"
+            className={`nav-category-button ${categoryOpen ? "open" : ""}`}
+            onClick={() => setCategoryOpen((current) => !current)}
+            onFocus={() => setCategoryOpen(true)}
+            aria-expanded={categoryOpen}
+            aria-haspopup="menu"
+          >
+            Categories <ChevronDown size={14} />
+          </button>
+          {categoryOpen && (
+            <div className="category-menu" role="menu">
+              {categoryNames.map((categoryName) => (
+                <Link
+                  key={categoryName}
+                  to={`/products?category=${encodeURIComponent(categoryName)}#category-results`}
+                  onClick={closeMenus}
+                  role="menuitem"
+                >
+                  <span><LayoutGrid size={16} /></span>
+                  <b>{categoryName}</b>
+                  <small>
+                    {catalog.filter((product) => product.category === categoryName).length} products
+                  </small>
+                </Link>
+              ))}
+              <Link className="menu-all" to="/products" onClick={closeMenus}>
+                View all products <span>→</span>
+              </Link>
+            </div>
+          )}
+        </div>
 
         <Link
           className={location.pathname === "/how-it-works" ? "active" : ""}
@@ -171,6 +226,22 @@ export const Header: React.FC = () => {
           <Link to="/products" onClick={closeMenus}>
             Products
           </Link>
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-2">
+            <span className="text-xs uppercase font-bold text-orange-600 dark:text-orange-400">
+              Categories
+            </span>
+            {categoryNames.map((categoryName) => (
+              <Link
+                key={categoryName}
+                to={`/products?category=${encodeURIComponent(categoryName)}#category-results`}
+                onClick={closeMenus}
+                className="flex items-center gap-2 py-1"
+              >
+                <LayoutGrid size={14} className="text-orange-600" />
+                {categoryName}
+              </Link>
+            ))}
+          </div>
           <Link to="/how-it-works" onClick={closeMenus}>
             How it works
           </Link>

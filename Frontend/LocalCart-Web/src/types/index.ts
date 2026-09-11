@@ -8,6 +8,9 @@ export type Product = {
   category: Category;
   vendor: string;
   vendorPhone?: string;
+  vendorAddress?: string;
+  vendorPincode?: string;
+  distanceKm?: number;
   price: number;
   oldPrice: number;
   rating: number;
@@ -75,6 +78,9 @@ export interface BackendProductDto {
   productId: number;
   vendorId: number;
   vendorName: string;
+  vendorAddress: string;
+  vendorPhone: string;
+  vendorPincode: string;
   productCategoryId: number;
   categoryName: string;
   name: string;
@@ -250,10 +256,13 @@ export function mapBackendProductToFrontend(dto: BackendProductDto): Product {
     name: dto.name,
     category: dto.categoryName,
     vendor: dto.vendorName || "Verified Merchant",
+    vendorAddress: dto.vendorAddress || undefined,
+    vendorPhone: dto.vendorPhone || undefined,
+    vendorPincode: dto.vendorPincode || undefined,
     price: dto.price,
     oldPrice: Math.round(dto.price * 1.15),
     rating: 4.8,
-    distance: "1.0 km",
+    distance: dto.vendorPincode ? `Pincode ${dto.vendorPincode}` : "Distance unavailable",
     color: palette.color,
     accent: palette.accent,
     tag: dto.stockQuantity > 0 ? "In Stock" : "Out of Stock",

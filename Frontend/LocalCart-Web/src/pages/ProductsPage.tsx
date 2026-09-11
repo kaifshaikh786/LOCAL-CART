@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowUpDown,
   Check,
   Heart,
+  MapPin,
+  Phone,
   RotateCcw,
   Search,
   ShoppingBag,
@@ -19,6 +21,15 @@ import { useProducts } from "../context/ProductContext";
 import { useCart } from "../context/CartContext";
 import { money } from "../utils/formatters";
 import { ProductArtwork } from "../components/product/ProductArtwork";
+import { Product } from "../types";
+
+const extractPincode = (value: string) => value.match(/\b\d{6}\b/)?.[0] ?? "";
+
+const proximityScore = (product: Product, targetPincode: string) => {
+  if (!targetPincode || !product.vendorPincode) return Number.MAX_SAFE_INTEGER;
+  if (product.vendorPincode === targetPincode) return 0;
+  return Math.abs(Number(product.vendorPincode) - Number(targetPincode));
+};
 
 export const ProductsPage: React.FC = () => {
   const { catalog, categories } = useProducts();
@@ -28,7 +39,19 @@ export const ProductsPage: React.FC = () => {
   const search = params.get("search") ?? "";
   const category = params.get("category") ?? "All";
   const pincode = params.get("pincode") ?? "";
+  const targetPincode = extractPincode(pincode);
   const [sort, setSort] = useState("Featured");
+
+  useEffect(() => {
+    if (category !== "All" && window.location.hash === "#category-results") {
+      window.requestAnimationFrame(() => {
+        document.getElementById("category-results")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    }
+  }, [category]);
 
   // Amazon-grade filters
   const [priceRange, setPriceRange] = useState<
@@ -139,9 +162,17 @@ export const ProductsPage: React.FC = () => {
         return true;
       })
       .sort((a, b) => {
+        if (sort === "Distance: nearest") {
+          return proximityScore(a, targetPincode) - proximityScore(b, targetPincode);
+        }
         if (sort === "Price: low") return a.price - b.price;
         if (sort === "Price: high") return b.price - a.price;
         if (sort === "Popular") return (b.rating || 0) - (a.rating || 0);
+        if (targetPincode) {
+          const proximityDifference =
+            proximityScore(a, targetPincode) - proximityScore(b, targetPincode);
+          if (proximityDifference !== 0) return proximityDifference;
+        }
         return b.id - a.id;
       });
   }, [
@@ -153,6 +184,7 @@ export const ProductsPage: React.FC = () => {
     sameDayOnly,
     inStockOnly,
     sort,
+    targetPincode,
   ]);
 
   const currentLocation = pincode || localStorage.getItem("localcart-location");
@@ -442,7 +474,7 @@ export const ProductsPage: React.FC = () => {
         </aside>
 
         {/* Right Column: Results Header, Active Filters, & Product Grid */}
-        <div className="flex-1 min-w-0">
+        <div id="category-results" className="flex-1 min-w-0">
           {/* Amazon-Style Results Toolbar */}
           <div
             className="p-3.5 sm:p-4 rounded-2xl border mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
@@ -525,6 +557,7 @@ export const ProductsPage: React.FC = () => {
                   { value: "Popular", label: "Avg. Customer Review" },
                   { value: "Price: low", label: "Price: Low to High" },
                   { value: "Price: high", label: "Price: High to Low" },
+                  { value: "Distance: nearest", label: "Distance: Nearest First" },
                 ]}
                 value={sort}
                 onChange={(val) => setSort(val)}
@@ -744,6 +777,25 @@ export const ProductsPage: React.FC = () => {
                         </span>
                         {product.distance && <span>· {product.distance}</span>}
                       </div>
+                      {product.vendorAddress && (
+                        <div
+                          className="text-[11px] flex items-start gap-1 mb-1"
+                          style={{ color: "var(--muted)" }}
+                        >
+                          <MapPin size={12} className="mt-0.5 shrink-0 text-[var(--rust)]" />
+                          <span className="line-clamp-2">{product.vendorAddress}</span>
+                        </div>
+                      )}
+                      {product.vendorPhone && (
+                        <a
+                          href={`tel:${product.vendorPhone}`}
+                          className="text-[11px] flex items-center gap-1 mb-2 hover:underline"
+                          style={{ color: "var(--rust)" }}
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <Phone size={12} /> {product.vendorPhone}
+                        </a>
+                      )}
 
                       {/* Product Title */}
                       <Link

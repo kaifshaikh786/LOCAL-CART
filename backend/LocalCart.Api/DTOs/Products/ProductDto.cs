@@ -7,6 +7,12 @@ public class ProductDto
     public int VendorId { get; set; }
 
     public string VendorName { get; set; } = string.Empty;
+   
+        public string VendorAddress { get; set; } = string.Empty;
+    
+        public string VendorPhone { get; set; } = string.Empty;
+    
+        public string VendorPincode { get; set; } = string.Empty;
 
     public int ProductCategoryId { get; set; }
 

@@ -70,22 +70,13 @@ export const SignUpPage: React.FC = () => {
           color: "#ffffff",
         }}
       >
-        <div className="flex items-center gap-3 mb-8">
-          <div className="logo-mark">LC</div>
-          <div>
-            <b
-              className="text-xl font-extrabold tracking-tight"
-              style={{ color: "#ffffff" }}
-            >
-              Vendor Studio
-            </b>
-            <small
-              className="block font-mono text-[11px] uppercase"
-              style={{ color: "rgba(255, 255, 255, 0.8)" }}
-            >
-              Neighborhood Merchant Hub
-            </small>
-          </div>
+        <div className="mb-8">
+          <img
+            className="auth-brand-logo"
+            src="/localcart-logo.png"
+            alt="LocalCart - Hyperlocal E-Commerce Platform"
+          />
+          <small className="auth-brand-caption">Neighborhood Merchant Hub</small>
         </div>
 
         <span className="kicker" style={{ color: "var(--rust)" }}>

@@ -194,6 +194,42 @@ button {
   text-decoration: none;
 }
 
+.brand-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  box-shadow: 0 4px 12px rgba(24, 23, 21, 0.12);
+}
+
+.footer-brand-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
+.auth-brand-logo {
+  width: 92px;
+  height: 92px;
+  object-fit: cover;
+  display: block;
+  padding: 8px;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.auth-brand-caption {
+  display: block;
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
 .logo-mark {
   width: 40px;
   height: 40px;
@@ -293,11 +329,22 @@ button {
   position: relative;
 }
 
+.nav-category::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
 .category-menu {
   position: absolute;
-  top: calc(100% + 14px);
+  top: calc(100% + 8px);
   left: -20px;
-  width: 360px;
+  width: min(460px, 80vw);
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
   padding: 12px;
   background: var(--paper);
   border: 1px solid var(--line);
@@ -1170,11 +1217,19 @@ button {
   aspect-ratio: 1 / 1;
 }
 
-.product-art[style*='url']::after {
+.product-art.has-image::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.65) 100%);
+}
+
+.product-art-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .art-tag {

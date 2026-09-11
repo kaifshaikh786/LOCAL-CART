@@ -80,22 +80,13 @@ export const LoginPage: React.FC = () => {
           borderRadius: "28px",
         }}
       >
-        <div className="flex items-center gap-3 mb-10">
-          <div className="logo-mark">LC</div>
-          <div>
-            <b
-              className="text-xl font-extrabold tracking-tight"
-              style={{ color: "#ffffff" }}
-            >
-              LocalCart Workspace
-            </b>
-            <small
-              className="block font-mono text-[11px] uppercase"
-              style={{ color: "rgba(255, 255, 255, 0.8)" }}
-            >
-              Unified Merchant & Ops Portal
-            </small>
-          </div>
+        <div className="mb-10">
+          <img
+            className="auth-brand-logo"
+            src="/localcart-logo.png"
+            alt="LocalCart - Hyperlocal E-Commerce Platform"
+          />
+          <small className="auth-brand-caption">Unified Merchant & Ops Portal</small>
         </div>
 
         <span className="kicker" style={{ color: "var(--rust)" }}>

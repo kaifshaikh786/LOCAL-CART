@@ -64,11 +64,17 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<LocalCartDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-    sqloptions =>
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (string.IsNullOrWhiteSpace(connectionString) || connectionString.StartsWith("["))
     {
-        sqloptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
-    });
+        var localDatabasePath = Path.Combine(builder.Environment.ContentRootPath, "localcart.db");
+        options.UseSqlite($"Data Source={localDatabasePath}");
+    }
+    else
+    {
+        options.UseSqlServer(connectionString,
+            sqloptions => sqloptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery));
+    }
 });
 
 builder.Services.AddCors(options =>
@@ -100,6 +106,24 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<LocalCartDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+        .CreateLogger("CatalogImport");
+    try
+    {
+        await dbContext.Database.EnsureCreatedAsync();
+        await CsvCatalogSeeder.SeedAsync(dbContext, builder.Configuration, logger);
+    }
+    catch (Exception exception)
+    {
+        logger.LogError(
+            exception,
+            "Catalog import was skipped because the database is unavailable or not configured.");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

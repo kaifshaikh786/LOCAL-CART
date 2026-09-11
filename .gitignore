@@ -72,6 +72,9 @@ secrets.json
 # Local Uploads & Static Storage
 wwwroot/uploads/
 uploads/
+backend/LocalCart.Api/localcart.db
+backend/LocalCart.Api/localcart.db-shm
+backend/LocalCart.Api/localcart.db-wal
 
 # ==============================================================================
 # Operating System & Editor Files

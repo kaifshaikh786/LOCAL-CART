@@ -8,7 +8,11 @@ export const Footer: React.FC = () => {
       {/* Brand & Mission */}
       <div className="footer-brand">
         <div className="flex items-center gap-3">
-          <div className="logo-mark">LC</div>
+          <img
+            className="footer-brand-logo"
+            src="/localcart-logo.png"
+            alt="LocalCart cart logo"
+          />
           <b style={{ color: "var(--ink)" }}>LocalCart</b>
         </div>
         <p style={{ color: "var(--muted)" }}>
@@ -88,7 +92,10 @@ export const Footer: React.FC = () => {
 
       {/* Bottom Copyright & Badges */}
       <div className="copyright">
-        <div>© 2026 LocalCart Technologies Inc. All rights reserved.</div>
+        <div>
+          © 2026 LocalCart Technologies Inc. All rights reserved. · Developed
+          by Mohammad Kaif Shaikh and Tanish Gupta
+        </div>
         <div
           className="flex items-center gap-6 text-xs"
           style={{ color: "var(--muted)" }}
