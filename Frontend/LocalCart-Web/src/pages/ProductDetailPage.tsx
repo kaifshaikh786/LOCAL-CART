@@ -200,11 +200,17 @@ export const ProductDetailPage: React.FC = () => {
           >
             <span className="seller-avatar">{product.vendor.slice(0, 1)}</span>
             <div>
-              <b style={{ color: "var(--ink)" }}>{product.vendor}</b>
-              <small style={{ color: "var(--muted)" }}>
-                <MapPin size={13} style={{ color: "var(--rust)" }} />{" "}
-                {product.vendorAddress || "Local store address unavailable"}
-              </small>
+              <Link
+                to={`/products?vendorId=${product.vendorId}&vendor=${encodeURIComponent(product.vendor)}`}
+                className="seller-store-link"
+                aria-label={`Shop all products from ${product.vendor}`}
+              >
+                <b style={{ color: "var(--ink)" }}>{product.vendor}</b>
+                <small style={{ color: "var(--muted)" }}>
+                  <MapPin size={13} style={{ color: "var(--rust)" }} />{" "}
+                  {product.vendorAddress || "Local store address unavailable"}
+                </small>
+              </Link>
               {product.vendorPhone && (
                 <a
                   href={`tel:${product.vendorPhone}`}

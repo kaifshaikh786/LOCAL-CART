@@ -10,17 +10,27 @@ import { Footer } from "./components/layout/Footer";
 import { Toast } from "./components/common/Toast";
 import { useLocation } from "react-router-dom";
 import { AppRoutes } from "./routes/AppRoutes";
+import { LocationPrompt } from "./components/common/LocationPrompt";
 
 const AppContent: React.FC = () => {
   const { toast } = useCart();
   const location = useLocation();
   const isProductsCatalog = location.pathname.startsWith("/products");
+  const isPublicStorefront = !["/signin", "/login", "/signup", "/register", "/vendor", "/admin", "/customer"].some(
+    (path) => location.pathname === path || location.pathname.startsWith(`${path}/`),
+  );
+  const [showLocationPrompt, setShowLocationPrompt] = React.useState(
+    () => !localStorage.getItem("localcart-location") && isPublicStorefront,
+  );
 
   return (
     <>
       <ScrollToTop />
       <Header />
       <AppRoutes />
+      {showLocationPrompt && (
+        <LocationPrompt onClose={() => setShowLocationPrompt(false)} />
+      )}
       <Toast message={toast} />
       {!isProductsCatalog && <Footer />}
     </>

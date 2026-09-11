@@ -12,6 +12,7 @@ import { CustomerDashboardPage } from "../pages/CustomerDashboardPage";
 import { VendorDashboardPage } from "../pages/VendorDashboardPage";
 import { AdminDashboardPage } from "../pages/AdminDashboardPage";
 import { HowItWorksPage } from "../pages/HowItWorksPage";
+import { StoresPage } from "../pages/StoresPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { RequireAccess } from "../components/auth/RequireAccess";
 
@@ -38,6 +39,7 @@ export const AppRoutes: React.FC = () => {
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/confirmed" element={<OrderConfirmedPage />} />
       <Route path="/how-it-works" element={<HowItWorksPage />} />
+      <Route path="/stores" element={<StoresPage />} />
 
       {/* Customer Account */}
       <Route path="/customer" element={<CustomerDashboardPage />} />

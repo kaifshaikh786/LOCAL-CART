@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutGrid,
@@ -31,6 +31,10 @@ export const Header: React.FC = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [query, setQuery] = useState("");
 
+  useEffect(() => {
+    setQuery(new URLSearchParams(location.search).get("search") ?? "");
+  }, [location.search]);
+
   const isLoggedIn = Boolean(token && (currentUser || currentRole));
 
   const closeMenus = () => {
@@ -48,10 +52,14 @@ export const Header: React.FC = () => {
 
   const handleSearchSubmit = (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
-    if (query.trim()) {
-      navigate(`/products?search=${encodeURIComponent(query.trim())}`);
-      closeMenus();
-    }
+    const next = new URLSearchParams();
+    const current = new URLSearchParams(location.search);
+    const cleanQuery = query.trim();
+    const currentPincode = current.get("pincode");
+    if (currentPincode) next.set("pincode", currentPincode);
+    if (cleanQuery) next.set("search", cleanQuery);
+    navigate(`/products${next.toString() ? `?${next.toString()}` : ""}`);
+    closeMenus();
   };
 
   return (
@@ -79,6 +87,12 @@ export const Header: React.FC = () => {
           to="/products"
         >
           Products
+        </Link>
+        <Link
+          className={location.pathname.startsWith("/stores") ? "active" : ""}
+          to="/stores"
+        >
+          Stores
         </Link>
 
         <div
@@ -123,7 +137,7 @@ export const Header: React.FC = () => {
           className={location.pathname === "/how-it-works" ? "active" : ""}
           to="/how-it-works"
         >
-          How it works
+          About
         </Link>
       </nav>
 
@@ -226,6 +240,9 @@ export const Header: React.FC = () => {
           <Link to="/products" onClick={closeMenus}>
             Products
           </Link>
+          <Link to="/stores" onClick={closeMenus}>
+            Stores
+          </Link>
           <div className="border-t border-slate-200 dark:border-slate-700 pt-2">
             <span className="text-xs uppercase font-bold text-orange-600 dark:text-orange-400">
               Categories
@@ -243,7 +260,7 @@ export const Header: React.FC = () => {
             ))}
           </div>
           <Link to="/how-it-works" onClick={closeMenus}>
-            How it works
+            About &amp; How it works
           </Link>
           <button
             type="button"

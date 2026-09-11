@@ -159,11 +159,72 @@ public static class CsvCatalogSeeder
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        await SeedVendorAccountsAsync(dbContext, cancellationToken);
         logger.LogInformation(
             "Catalog import finished: {Vendors} vendors, {Categories} categories, {Products} products.",
             importedVendors,
             importedCategories,
             importedProducts);
+    }
+
+    private static async Task SeedVendorAccountsAsync(
+        LocalCartDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var vendorRole = await dbContext.Roles.FirstOrDefaultAsync(
+            role => role.RoleName == "Vendor",
+            cancellationToken);
+
+        if (vendorRole is null)
+        {
+            return;
+        }
+
+        var vendors = await dbContext.Vendors
+            .Where(vendor => vendor.DeletedAt == null && vendor.AppUserId == null)
+            .OrderBy(vendor => vendor.VendorId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var vendor in vendors)
+        {
+            var loginEmail = $"store-{vendor.VendorId}@localcart.test";
+            var userExists = await dbContext.AppUsers.AnyAsync(
+                user => user.NormalizedEmail == loginEmail.ToUpperInvariant() && user.DeletedAt == null,
+                cancellationToken);
+
+            if (userExists)
+            {
+                continue;
+            }
+
+            var user = new AppUser
+            {
+                FullName = string.IsNullOrWhiteSpace(vendor.OwnerName) ? vendor.ShopName : vendor.OwnerName,
+                Email = loginEmail,
+                NormalizedEmail = loginEmail.ToUpperInvariant(),
+                PhoneNumber = vendor.PhoneNumber,
+                PasswordHash = new PasswordHasherService().HashPassword(GetVendorPassword(vendor.VendorId)),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            user.AppUserRoles.Add(new AppUserRole
+            {
+                RoleId = vendorRole.RoleId,
+                AssignedAt = DateTime.UtcNow
+            });
+
+            dbContext.AppUsers.Add(user);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            vendor.AppUserId = user.AppUserId;
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public static string GetVendorPassword(int vendorId)
+    {
+        return $"Store{vendorId}@LocalCart2026!";
     }
 
     private static string Get(

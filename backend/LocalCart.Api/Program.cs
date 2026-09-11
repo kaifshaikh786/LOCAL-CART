@@ -33,8 +33,19 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
 // JWT Settings Configuration
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>() ?? new JwtSettings();
+if (Encoding.UTF8.GetByteCount(jwtSettings.SecretKey) < 32 && builder.Environment.IsDevelopment())
+{
+    jwtSettings.SecretKey = "LocalCart-development-key-change-before-production-2026";
+}
+builder.Services.Configure<JwtSettings>(options =>
+{
+    options.Issuer = jwtSettings.Issuer;
+    options.Audience = jwtSettings.Audience;
+    options.SecretKey = jwtSettings.SecretKey;
+    options.AccessTokenMinutes = jwtSettings.AccessTokenMinutes;
+    options.RefreshTokenDays = jwtSettings.RefreshTokenDays;
+});
 var secretKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
 // Authentication & JWT Bearer Configuration
@@ -115,6 +126,20 @@ using (var scope = app.Services.CreateScope())
     try
     {
         await dbContext.Database.EnsureCreatedAsync();
+        var requiredRoles = new[] { "Customer", "Vendor", "Admin" };
+        foreach (var roleName in requiredRoles)
+        {
+            if (!await dbContext.Roles.AnyAsync(role => role.RoleName == roleName))
+            {
+                dbContext.Roles.Add(new LocalCart.Api.Entities.Role
+                {
+                    RoleName = roleName,
+                    Description = $"LocalCart {roleName} role",
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+        }
+        await dbContext.SaveChangesAsync();
         await CsvCatalogSeeder.SeedAsync(dbContext, builder.Configuration, logger);
     }
     catch (Exception exception)

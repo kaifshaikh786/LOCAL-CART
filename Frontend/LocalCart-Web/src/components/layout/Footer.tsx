@@ -38,6 +38,7 @@ export const Footer: React.FC = () => {
       <div>
         <b>Explore Catalog</b>
         <Link to="/products">All Products</Link>
+        <Link to="/stores">Local Stores</Link>
         <Link to="/products?category=Electronics">Electronics & Audio</Link>
         <Link to="/products?category=Grocery">Fresh Grocery & Staples</Link>
         <Link to="/products?category=Fashion">Apparel & Footwear</Link>
@@ -63,7 +64,7 @@ export const Footer: React.FC = () => {
       {/* Community & Sellers */}
       <div>
         <b>For Local Sellers</b>
-        <Link to="/how-it-works">How LocalCart Works</Link>
+        <Link to="/how-it-works">About LocalCart</Link>
         <Link to="/signup">Register Your Shop</Link>
         <a href="mailto:partners@localcart.in">Seller Partnerships</a>
         <a href="mailto:support@localcart.in">Merchant Support</a>

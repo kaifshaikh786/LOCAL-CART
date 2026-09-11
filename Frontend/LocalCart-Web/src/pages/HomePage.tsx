@@ -1,28 +1,29 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
-  Apple,
   ArrowRight,
-  BadgeCheck,
   CheckCircle2,
-  Coffee,
-  Handshake,
-  Headphones,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
   Store,
   Truck,
-  Zap,
 } from "lucide-react";
 import { LocationBar } from "../components/common/LocationBar";
 import { ProductGrid } from "../components/product/ProductGrid";
+import { ProductArtwork } from "../components/product/ProductArtwork";
 import { useProducts } from "../context/ProductContext";
-import { CATEGORIES } from "../data/mockData";
+import { money } from "../utils/formatters";
 
 export const HomePage: React.FC = () => {
-  const { catalog } = useProducts();
+  const { catalog, categories } = useProducts();
   const featuredProducts = catalog.slice(0, 4);
+  const spotlightProducts = catalog.slice(0, 3);
+  const spotlightProduct = spotlightProducts[0];
+  const storeCount = new Set(catalog.map((product) => product.vendor)).size;
+  const categoryNames = categories.length
+    ? categories.map((category) => category.categoryName)
+    : Array.from(new Set(catalog.map((product) => product.category)));
 
   return (
     <main className="w-full flex flex-col items-center">
@@ -30,8 +31,7 @@ export const HomePage: React.FC = () => {
       <section className="hero">
         <div className="hero-copy">
           <span className="eyebrow">
-            <Sparkles size={15} /> LOCAL FINDS, BETTER PRICES · HYPERLOCAL
-            COMMERCE
+            <Sparkles size={15} /> LIVE LOCAL FINDS · {catalog.length || "400"} PRODUCTS
           </span>
 
           <h1>
@@ -85,75 +85,55 @@ export const HomePage: React.FC = () => {
           <div>
             <div className="showcase-header">
               <span className="showcase-badge">
-                <Sparkles size={13} /> Curated Merchant Spotlight
+                <Sparkles size={13} /> Live merchant spotlight
               </span>
               <span className="showcase-rating">
-                ★ 4.9 ·{" "}
-                <span className="font-normal text-stone-300">142 reviews</span>
+                <span className="font-normal text-stone-300">
+                  {storeCount || 19} local stores
+                </span>
               </span>
             </div>
 
             <div className="showcase-merchant">
-              <h3>Prime Provisions & Electronics</h3>
-              <p>Verified Merchant · 0.8 km away · MG Road Bazaar</p>
+              <h3>{spotlightProduct?.vendor || "Your neighborhood stores"}</h3>
+              <p>
+                Verified merchant · {spotlightProduct?.vendorPincode || "nearby"} ·
+                Live stock today
+              </p>
             </div>
 
             <div className="showcase-items">
-              <div className="showcase-item">
-                <div className="showcase-item-info">
-                  <div className="showcase-item-icon">
-                    <Headphones size={18} />
-                  </div>
-                  <div>
-                    <div className="showcase-item-name">Sony WH-1000XM5</div>
-                    <div className="showcase-item-sub">
-                      Noise Cancelling · In Local Stock
+              {spotlightProducts.map((product) => (
+                <Link
+                  key={product.id}
+                  to={`/products/${product.id}`}
+                  className="showcase-item"
+                >
+                  <div className="showcase-item-info">
+                    <div className="showcase-item-icon">
+                      {product.image ? (
+                        <ProductArtwork product={product} />
+                      ) : (
+                        <ShoppingBag size={18} />
+                      )}
+                    </div>
+                    <div>
+                      <div className="showcase-item-name">{product.name}</div>
+                      <div className="showcase-item-sub">
+                        {product.category} · {product.stock || 0} in stock
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="showcase-item-price">₹28,990</div>
-              </div>
-
-              <div className="showcase-item">
-                <div className="showcase-item-info">
-                  <div className="showcase-item-icon">
-                    <Apple size={18} />
-                  </div>
-                  <div>
-                    <div className="showcase-item-name">
-                      Organic Royal Delicious
-                    </div>
-                    <div className="showcase-item-sub">
-                      Kashmir Orchards · 1 kg
-                    </div>
-                  </div>
-                </div>
-                <div className="showcase-item-price">₹180</div>
-              </div>
-
-              <div className="showcase-item">
-                <div className="showcase-item-info">
-                  <div className="showcase-item-icon">
-                    <Coffee size={18} />
-                  </div>
-                  <div>
-                    <div className="showcase-item-name">
-                      Single Estate Darjeeling
-                    </div>
-                    <div className="showcase-item-sub">
-                      Spring Flush Tea · 250g
-                    </div>
-                  </div>
-                </div>
-                <div className="showcase-item-price">₹420</div>
-              </div>
+                  <div className="showcase-item-price">{money(product.price)}</div>
+                </Link>
+              ))}
             </div>
           </div>
 
           <div className="showcase-footer">
             <span className="showcase-status">
               <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              Open Now · Same-Day Local Delivery
+              Open now · {storeCount || 19} stores nearby
             </span>
             <Link
               to="/products"
@@ -165,52 +145,35 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Quick Value Strip (Luxury Cards) */}
-      <section className="quick-strip">
-        <div className="quick-strip-card">
-          <div className="quick-strip-icon">
-            <Store size={20} />
+      {/* Live product shelf: the first shopping action after the hero */}
+      <section className="section deals-section home-live-products">
+        <div className="section-heading">
+          <div>
+            <span className="kicker">LIVE FROM LOCAL STORES</span>
+            <h2>What is nearby right now.</h2>
+            <p className="section-subtitle">
+              Real products, live stock, and prices from verified neighborhood stores.
+            </p>
           </div>
-          <div className="quick-strip-text">
-            <b>100% Local Merchants</b>
-            <small>Handpicked stores in your postal area</small>
-          </div>
+          <Link to="/products" className="inline-flex items-center gap-1">
+            See the full catalog <ArrowRight size={16} />
+          </Link>
         </div>
-        <div className="quick-strip-card">
-          <div className="quick-strip-icon">
-            <Zap size={20} />
-          </div>
-          <div className="quick-strip-text">
-            <b>Express Delivery</b>
-            <small>Doorstep dispatch in 2–4 hours</small>
-          </div>
-        </div>
-        <div className="quick-strip-card">
-          <div className="quick-strip-icon">
-            <Handshake size={20} />
-          </div>
-          <div className="quick-strip-text">
-            <b>Fair Local Prices</b>
-            <small>Zero marked-up platform fees</small>
-          </div>
-        </div>
-        <div className="quick-strip-card">
-          <div className="quick-strip-icon">
-            <BadgeCheck size={20} />
-          </div>
-          <div className="quick-strip-text">
-            <b>Verified Authentic</b>
-            <small>Genuine neighborhood shopkeepers</small>
-          </div>
-        </div>
+        {featuredProducts.length > 0 ? (
+          <ProductGrid products={featuredProducts.slice(0, 8)} />
+        ) : (
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
+            Loading nearby products...
+          </p>
+        )}
       </section>
 
       {/* Browse by Categories (Full Width) */}
       <section className="section category-section">
         <div className="section-heading">
           <div>
-            <span className="kicker">BROWSE BY MOOD</span>
-            <h2>Find your next favorite.</h2>
+            <span className="kicker">SHOP BY CATEGORY</span>
+            <h2>Pick a category.</h2>
           </div>
           <Link to="/products">
             See all categories <ArrowRight size={16} />
@@ -218,16 +181,16 @@ export const HomePage: React.FC = () => {
         </div>
 
         <div className="category-list">
-          {CATEGORIES.map((category) => (
+          {categoryNames.map((categoryName) => (
             <Link
-              to={`/products?category=${category.label}`}
+              to={`/products?category=${encodeURIComponent(categoryName)}#category-results`}
               className="category-item"
-              key={category.label}
+              key={categoryName}
             >
               <div className="category-icon">
                 <ShoppingBag size={22} />
               </div>
-              <b>{category.label}</b>
+              <b>{categoryName}</b>
               <small>
                 Explore items <ArrowRight size={12} />
               </small>
@@ -236,7 +199,7 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Deals & Nearby Favorites Grid (Full Width) */}
+      {/* More Deals & Nearby Favorites Grid (Full Width) */}
       <section className="section deals-section">
         <div className="section-heading">
           <div>
@@ -248,69 +211,9 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        <ProductGrid products={featuredProducts} />
+        <ProductGrid products={catalog.slice(8, 16)} />
       </section>
 
-      {/* The LocalCart Promise Banner (Full Bleed Screen Width) */}
-      <section className="local-banner" id="how-it-works">
-        <div>
-          <span className="kicker">THE LOCALCART PROMISE</span>
-          <h2>
-            Small stores.
-            <br />
-            <em>Big difference.</em>
-          </h2>
-          <p className="text-slate-400 mt-4 text-sm leading-relaxed max-w-md">
-            We are reimagining online shopping by putting neighborhood shops at
-            the center. Fair prices for you, sustainable growth for local
-            merchants.
-          </p>
-        </div>
-
-        <div className="promise-grid">
-          <div>
-            <span>01</span>
-            <b>Compare nearby</b>
-            <p>
-              See live stock, prices, and vendor distance in one clean view.
-            </p>
-          </div>
-          <div>
-            <span>02</span>
-            <b>Choose your way</b>
-            <p>Select doorstep delivery or express in-store counter pickup.</p>
-          </div>
-          <div>
-            <span>03</span>
-            <b>Support local</b>
-            <p>
-              Every single order keeps your immediate neighborhood thriving.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Merchant Spotlight Call-to-Action */}
-      <section className="w-full px-4 sm:px-8 lg:px-16 py-20 bg-[var(--paper)] border-t border-[var(--line)]">
-        <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
-          <span className="kicker">FOR SHOP OWNERS</span>
-          <h2 className="heading-serif text-3xl sm:text-4xl font-bold tracking-tight mt-3 text-[var(--ink)]">
-            Do you own a store in the neighborhood?
-          </h2>
-          <p className="text-[var(--muted)] mt-3 text-base max-w-xl leading-relaxed">
-            List your inventory, manage customer orders in real time, and
-            connect with buyers right across your street. Zero setup fees.
-          </p>
-          <div className="flex items-center gap-4 mt-8 flex-wrap justify-center">
-            <Link to="/signup" className="btn btn-dark">
-              Open Vendor Studio <ArrowRight size={16} />
-            </Link>
-            <Link to="/products" className="btn btn-outline">
-              Browse Customer View
-            </Link>
-          </div>
-        </div>
-      </section>
     </main>
   );
 };

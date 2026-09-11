@@ -38,6 +38,8 @@ export const ProductsPage: React.FC = () => {
 
   const search = params.get("search") ?? "";
   const category = params.get("category") ?? "All";
+  const vendorId = Number(params.get("vendorId")) || 0;
+  const vendorName = params.get("vendor") ?? "";
   const pincode = params.get("pincode") ?? "";
   const targetPincode = extractPincode(pincode);
   const [sort, setSort] = useState("Featured");
@@ -93,6 +95,8 @@ export const ProductsPage: React.FC = () => {
   ) => {
     const next: Record<string, string> = {};
     if (pincode) next.pincode = pincode;
+    if (vendorId) next.vendorId = String(vendorId);
+    if (vendorName) next.vendor = vendorName;
 
     if (updates.category !== undefined) {
       if (updates.category && updates.category !== "All") {
@@ -121,6 +125,10 @@ export const ProductsPage: React.FC = () => {
         const prodCategory = (product.category || "").toLowerCase();
         const prodName = (product.name || "").toLowerCase();
         const prodVendor = (product.vendor || "").toLowerCase();
+        const prodAddress = (product.vendorAddress || "").toLowerCase();
+        const prodPhone = (product.vendorPhone || "").toLowerCase();
+        if (vendorId && product.vendorId !== vendorId) return false;
+
         const searchTarget = search.trim().toLowerCase();
 
         // Category filter
@@ -132,7 +140,10 @@ export const ProductsPage: React.FC = () => {
         if (
           searchTarget &&
           !prodName.includes(searchTarget) &&
-          !prodVendor.includes(searchTarget)
+          !prodVendor.includes(searchTarget) &&
+          !prodCategory.includes(searchTarget) &&
+          !prodAddress.includes(searchTarget) &&
+          !prodPhone.includes(searchTarget)
         ) {
           return false;
         }
@@ -185,6 +196,7 @@ export const ProductsPage: React.FC = () => {
     inStockOnly,
     sort,
     targetPincode,
+    vendorId,
   ]);
 
   const currentLocation = pincode || localStorage.getItem("localcart-location");
@@ -513,7 +525,7 @@ export const ProductsPage: React.FC = () => {
                     ? `"${search}"`
                     : category === "All"
                       ? "All Products"
-                      : category}
+                      : vendorName || category}
                 </b>
               </p>
             </div>
