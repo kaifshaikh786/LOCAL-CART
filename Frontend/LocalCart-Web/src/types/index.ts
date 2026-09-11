@@ -4,6 +4,7 @@ export type Product = {
   id: number;
   productId?: number;
   vendorId?: number;
+  productCategoryId?: number;
   name: string;
   category: Category;
   vendor: string;
@@ -253,6 +254,7 @@ export function mapBackendProductToFrontend(dto: BackendProductDto): Product {
     id: dto.productId,
     productId: dto.productId,
     vendorId: dto.vendorId,
+    productCategoryId: dto.productCategoryId,
     name: dto.name,
     category: dto.categoryName,
     vendor: dto.vendorName || "Verified Merchant",

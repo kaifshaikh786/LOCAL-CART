@@ -46,7 +46,11 @@ export const VendorDashboardPage: React.FC = () => {
   const storeName =
     currentUser?.shopName ||
     localStorage.getItem("localcart-store-name") ||
-    "Prime Electronics";
+    "Your Store";
+
+  const completedRevenue = vendorOrders
+    .filter((order) => order.status === "Completed" || order.status === "Delivered")
+    .reduce((sum, order) => sum + (order.total || 0), 0);
 
   const fetchVendorData = async () => {
     if (!token) return;
@@ -162,9 +166,9 @@ export const VendorDashboardPage: React.FC = () => {
       <div className="metric-grid">
         <MetricCard
           icon={<BarChart3 size={20} />}
-          label="Estimated Revenue"
-          value="₹48,950"
-          detail="+22.4% this month"
+          label="Completed Revenue"
+          value={money(completedRevenue)}
+          detail="Based on completed orders"
         />
         <MetricCard
           icon={<Package size={20} />}
@@ -244,7 +248,8 @@ export const VendorDashboardPage: React.FC = () => {
                   <h2>{storeName} Catalog</h2>
                 </div>
                 <span className="vendor-id">
-                  <span>Merchant ID</span> LC-VN-2048
+                  <span>Merchant ID</span>{" "}
+                  {currentUser?.vendorId ? `LC-VN-${currentUser.vendorId}` : "Not assigned"}
                 </span>
               </div>
 

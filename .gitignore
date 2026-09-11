@@ -99,3 +99,5 @@ tmp/
 ngrok.exe
 *.ngrok.exe.old
 .ngrok.exe.old
+# Credential exports and local demo accounts
+docs/*credentials*

@@ -74,10 +74,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
         setCatalog((prev) => [mapped, ...prev]);
         return mapped;
       } catch (err) {
-        console.warn(
-          "Backend product creation error, falling back to local:",
-          err,
-        );
+        console.error("Backend product creation failed:", err);
+        if (!import.meta.env.DEV) {
+          throw err;
+        }
+        console.warn("Using local product fallback in development only.");
       }
     }
 

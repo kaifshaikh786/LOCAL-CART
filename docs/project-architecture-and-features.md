@@ -474,21 +474,11 @@ Importer file:
 backend/LocalCart.Api/Services/CsvCatalogSeeder.cs
 ```
 
-## 9. Store Credentials
+## 9. Credentials and Secrets
 
-The current local store credential list is documented in:
+Credentials are intentionally not stored in the repository. Create local test accounts through a private seed script or environment-managed setup, and store production secrets in the deployment provider's secret manager.
 
-```text
-docs/store-credentials.csv
-```
-
-The local demo Vendor and Admin credentials are documented in:
-
-```text
-docs/local-demo-credentials.md
-```
-
-These credentials are for local testing only and must be replaced or removed before production deployment.
+Never commit passwords, JWT secrets, database connection strings, or user credential exports. Rotate any credentials that may previously have been exposed.
 
 ## 10. Customer Flow
 

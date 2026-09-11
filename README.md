@@ -84,6 +84,7 @@
   - 100,000 iteration rounds with 128-bit cryptographic salt
   - Constant-time comparison (`CryptographicOperations.FixedTimeEquals`) to prevent timing attacks
 - **Authentication**: JWT Bearer Token (`Microsoft.AspNetCore.Authentication.JwtBearer`)
+- **CORS**: Environment-configured frontend allowlist in production
 - **Documentation**: OpenAPI / Swagger (`Microsoft.AspNetCore.OpenApi`, `Microsoft.OpenApi`)
 
 ---

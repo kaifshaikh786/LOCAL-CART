@@ -136,11 +136,7 @@ export const AdminDashboardPage: React.FC = () => {
       showNotice(`Product "${name}" permanently deleted.`);
       if (refreshProducts) refreshProducts();
     } catch (err: any) {
-      // If unauthorized in development or local, update local state
-      setAdminProducts((prev) =>
-        prev.filter((p) => (p.id ?? p.productId) !== id),
-      );
-      showNotice(`Product "${name}" removed from active catalog view.`);
+      showNotice(`Could not delete "${name}": ${err?.message || "server request failed"}`);
     }
   };
 
@@ -157,11 +153,16 @@ export const AdminDashboardPage: React.FC = () => {
     const realId = editingProduct.productId ?? editingProduct.id;
     setIsSaving(true);
     try {
+      const categoryId = editingProduct.productCategoryId;
+      if (!categoryId) {
+        throw new Error("This product is missing its category identifier. Refresh the catalog and try again.");
+      }
+
       await productApi.updateProduct(realId, {
         name: editingProduct.name,
         price: Number(editPrice),
         stockQuantity: Number(editStock),
-        productCategoryId: 1, // Fallback category ID
+        productCategoryId: categoryId,
         isAvailable: Number(editStock) > 0,
       });
 
@@ -178,16 +179,7 @@ export const AdminDashboardPage: React.FC = () => {
       setEditingProduct(null);
       if (refreshProducts) refreshProducts();
     } catch (err: any) {
-      // Update local state even if token was unavailable
-      setAdminProducts((prev) =>
-        prev.map((p) =>
-          (p.id ?? p.productId) === realId
-            ? { ...p, price: Number(editPrice), stock: Number(editStock) }
-            : p,
-        ),
-      );
-      showNotice(`Updated "${editingProduct.name}" locally in catalog.`);
-      setEditingProduct(null);
+      showNotice(`Could not update "${editingProduct.name}": ${err?.message || "server request failed"}`);
     } finally {
       setIsSaving(false);
     }
